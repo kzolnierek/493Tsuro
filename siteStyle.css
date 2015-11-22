@@ -1,0 +1,20 @@
+
+.gameboard{
+	background-color: #0034;
+	background-image: url(board.png);
+	height: 500px;
+	width: 530px;
+	margin-left: 25%;
+}
+.piece{
+	width:85px;
+	height:85px;
+}
+
+#submitButton, #undoButton{
+	visibility: hidden;
+}
+
+#lowerButton1, #lowerButton2, #lowerButton3{
+	visibility: hidden;
+}

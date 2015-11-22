@@ -1,0 +1,109 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="siteStyle.css">
+	</head>
+   <body>
+      
+     
+      <h1>Tsuro Release 0</h1>
+      <h2>Directions: </h2>
+      <h4> First click "deal!" button. Then drag the tile to the square where you want it to go.</h4>
+    
+      <h5> The rotate button doesnt actually work and we plan to have a hover over thing on each tile instead and then when the user clicks it, the piece will rotate</h5>
+
+<!-- becuse the player piece stuff doesnt work yet
+      <div class="row">
+	      enter where you want to start, then click color: X<input type="text" id="startXSpot" name="boxid"> </input> 
+	      												   Y <input type="text" id="startYSpot" name="boxid"> </input> 
+
+	      <img src="greenPerson.png"  onclick="initPerson('greenPerson.png')"></img>
+	      <img src="yellowPerson.png" onclick="initPerson('yellowPerson.png')"></img>
+	      <img src="purplePerson.png" onclick="initPerson('purplePerson.png')"></img>
+	      <img  src="redPerson.png"   onclick="initPerson('redPerson.png')"></img>
+      </div>
+    -->
+      <button type="button" class="btn btn-default btn-block" onclick="dealCards()">Deal!</button>
+      <div class="row">
+	      <img class="tile" id="left" src="" draggable="true" ondragstart="drag(event)"></img>
+	      <img class="tile" id="middle" src="" draggable="true" ondragstart="drag(event)"></img>
+	      <img class="tile" id="right" src="" draggable="true" ondragstart="drag(event)"></img>
+
+      </div>
+      <div class="row">
+	      <button type="button" id="lowerButton1" class="btn btn-default btn-block" onclick="flip('l')">move to middle</button>
+        <button type="button" id="lowerButton2" class="btn btn-default btn-block" onclick="rotate()">rotate</button>
+	      <button type="button" id="lowerButton3" class="btn btn-default btn-block" onclick="flip('r')">move to middle</button>
+       </div>
+
+       <div class="row">
+        <button type="button" id="submitButton" class="btn btn-default btn-block" onclick="submitCard()">SUBMIT CARD</button>
+        <button type="button" id="undoButton" class="btn btn-default btn-block" onclick="undoCardPlacement()">RETURN CARD TO HAND</button>
+      </div>
+
+
+  	  <div class="gameboard">
+       <!--row 0 -->
+        <div class="row"></div>
+       	<img class="piece" id="1" ondrop="drop(event, 1)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="2" ondrop="drop(event, 2)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="3" ondrop="drop(event, 3)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="4" ondrop="drop(event, 4)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="5" ondrop="drop(event, 5)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="6" ondrop="drop(event, 6)" ondragover="allowDrop(event)"></img>
+       	
+       	<!-- row 1 -->
+        <div class="row"></div>
+       	<img class="piece" id="7"  ondrop="drop(event, 7)" ondragover="allowDrop(event)" ></img>
+       	<img class="piece" id="8"  ondrop="drop(event, 8)" ondragover="allowDrop(event)" ></img>
+       	<img class="piece" id="9"  ondrop="drop(event, 9)" ondragover="allowDrop(event)" ></img>
+       	<img class="piece" id="10" ondrop="drop(event, 10)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="11" ondrop="drop(event, 11)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="12" ondrop="drop(event, 12)" ondragover="allowDrop(event)"></img>
+
+       	 <!-- row 2-->
+        <div class="row"></div>
+       	<img class="piece" id="13" ondrop="drop(event, 13)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="14" ondrop="drop(event, 14)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="15" ondrop="drop(event, 15)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="16" ondrop="drop(event, 16)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="17" ondrop="drop(event, 17)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="18" ondrop="drop(event, 18)" ondragover="allowDrop(event)"></img>
+
+       	<!-- row 3-->
+        <div class="row"></div>
+        <img class="piece" id="19" ondrop="drop(event, 19)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="20" ondrop="drop(event, 20)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="21" ondrop="drop(event, 21)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="22" ondrop="drop(event, 22)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="23" ondrop="drop(event, 23)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="24" ondrop="drop(event, 24)" ondragover="allowDrop(event)"></img>
+
+       	<!-- row 4-->
+        <div class="row"></div>
+       	<img class="piece" id="25" ondrop="drop(event, 25)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="26" ondrop="drop(event, 26)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="27" ondrop="drop(event, 27)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="28" ondrop="drop(event, 28)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="29" ondrop="drop(event, 29)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="30" ondrop="drop(event, 30)" ondragover="allowDrop(event)"></img>
+
+       	 <!-- row 5-->
+        <div class="row"></div>
+       	<img class="piece" id="31" ondrop="drop(event, 31)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="32" ondrop="drop(event, 32)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="33" ondrop="drop(event, 33)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="34" ondrop="drop(event, 34)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="35" ondrop="drop(event, 35)" ondragover="allowDrop(event)"></img>
+       	<img class="piece" id="36" ondrop="drop(event, 36)" ondragover="allowDrop(event)"></img>
+       </div>
+
+
+      <!-- at the bottom because then they wont slow the pg down from loading -->
+      <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <script src="functionality.js"></script>
+      
+
+
+   </body>
+</html>
