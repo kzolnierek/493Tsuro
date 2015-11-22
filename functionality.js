@@ -1,5 +1,6 @@
 
-var tiles =["piece1.png", "piece2.png", "piece3.png", "piece4.png", "dog.png", "michigan.png", "icecream.png"];
+var tiles =["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", 
+             "tiles/piece4.png", "tiles/dog.png", "tiles/michigan.png", "tiles/icecream.png"];
 var thisPlayerColor;
 var gameChannel = 'game_channel';
 var cardsChannel = 'send_cards';
@@ -73,13 +74,7 @@ $(document).ready(function() {
 });
 
 function addCard(spot, cardin){
-		console.log("add" + cardin + " called with " + spot);
-		document.getElementById(spot).src = cardin; 
-	}
-
-//see my note in the read me about this
-function movePiece(xcord, ycord, pieceToMove){
-	console.log("add card fn called with " + xcord + " "+ ycord +pieceToMove);
+	document.getElementById(spot).src = cardin; 
 }
 
 function dealCards(){
@@ -90,22 +85,19 @@ function dealCards(){
 	pubnub.publish({
 	    channel: cardsChannel,        
 	    message: {replacement: 3},
-	    callback : function(m){console.log("I'm publishing: " + m)},
-	    error: function(e){console.log(e)}
+	    callback : function(m){ console.log("just publishing delt cards")},
+	    error: function(e){console.log("ERROR: " + e)}
 	});
 
 }
 
 function displayHand(left, middle, right){
-	console.log("display hand successfully called with: " 
-					+ left + " " + middle + " " + right);
 	document.getElementById('left').src = left;
 	document.getElementById('middle').src = middle;
 	document.getElementById('right').src = right;
 }
 
 function flip(side){
-	console.log("flip successfully called with: " + side);
 	var temp = document.getElementById('middle').src
 	if(side == 'r'){
 		document.getElementById('middle').src = document.getElementById('right').src;
@@ -153,10 +145,11 @@ function testCardPosition(numberIn, side){
 		alert("You can only test one card at a time");
 	}
 	else{
+		console.log("vector here: " + tiles);
    		tileSpotNumber = numberIn;
    		tilePath = document.getElementById(side).src;
    		curSide = side;
-   		var filename = tilePath.replace(/^.*[\\\/]/, '')
+   		var filename = "tiles/" + tilePath.replace(/^.*[\\\/]/, '')
    		//check to see if a card is already there
    		if(document.getElementById(tileSpotNumber).src != ""
    			&& document.getElementById(tileSpotNumber).src != transparentCard)
@@ -172,6 +165,7 @@ function testCardPosition(numberIn, side){
 				alert("Please put a card in the center spot");
 			}
 		}
+		console.log("vector here at end: " + tiles);
 	}
 }
 
@@ -180,7 +174,7 @@ function submitCard(){
 		console.log("CARD IS NULL");
 	}
 	else{
-   		filename = tilePath.replace(/^.*[\\\/]/, '')
+   		filename = "tiles/" + tilePath.replace(/^.*[\\\/]/, '')
    		//check to see if a card is already there
    		if(document.getElementById(tileSpotNumber).src != "" 
    			&& document.getElementById(tileSpotNumber).src != tilePath
@@ -227,18 +221,17 @@ function submitCard(){
 }
 
 function undoCardPlacement(){
-
+	console.log("vector here1: " + tiles);
 	document.getElementById(curSide).src = tilePath;
-	console.log("before: " + document.getElementById(tileSpotNumber).src)
 	document.getElementById(tileSpotNumber).src = transparentCard;
 	//document.getElementById(tileSpotNumber).removeAttribute('src');
-	console.log("after: " + document.getElementById(tileSpotNumber).src)
 	document.getElementById("submitButton").style.visibility = 'hidden';
     document.getElementById("undoButton").style.visibility = 'hidden';
 	//reset globals
 	tileSpotNumber = -1;
 	tilePath = "not Valid!";
 	curSide = "not valid";
+	console.log("vector here1 at end: " + tiles);
 }
 
 function initPerson(color){
