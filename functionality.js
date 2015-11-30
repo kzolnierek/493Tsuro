@@ -1,6 +1,8 @@
 
-var tiles =["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", 
+var tiles =["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/red.png",
              "tiles/piece4.png", "tiles/dog.png", "tiles/michigan.png", "tiles/icecream.png"];
+var thisPlayerColor;
+var allTileInfo;
 var thisPlayerColor;
 var gameChannel = 'game_channel';
 var cardsChannel = 'send_cards';
@@ -23,7 +25,34 @@ publish_key: 'pub-c-178c8c90-9ea7-46e3-8982-32615dadbba0',    // only required i
 uuid: myUUID
 });
 
+//the paths start at the top left corner being called spot oneTo so that it
+//reads like " one goes to four"
+function tileInfo(fileName, one, two, three, four, five, six, seven, eight){
+	this.fileName = fileName;
+	this.oneTo = one; 
+	this.twoTo = two;
+	this.threeTo = three;
+	this.fourTo = four;
+	this.fiveTo = five;
+	this.sixTo = six;
+	this.sevenTo = seven;
+	this.eightTo = eight;
+}
+
+//this is so that you will know where the paths go on each tile
+function setUpTileArray(){
+	var one   = new tileInfo("tiles/piece1.png", 2, 1, 4, 3, 6, 5, 8, 7);
+	var two   = new tileInfo("tiles/piece2.png", 6, 5, 8, 7, 2, 1, 4, 3);
+	var three = new tileInfo("tiles/piece3.png", 2, 1, 7, 8, 6, 5, 4, 3);
+    var four  = new tileInfo("tiles/piece4.png", 6, 4, 8, 2, 7, 1, 5, 3);
+    var five  = new tileInfo("tiles/dog.png", 6, 5, 8, 7, 2, 1, 4, 3);
+    var six   = new tileInfo("tiles/michigan.png", 6, 5, 8, 7, 2, 1, 4, 3);
+    var seven = new tileInfo("tiles/icecream.png", 6, 5, 8, 7, 2, 1, 4, 3);
+    allTilesInfo = [one, two, three, four, five, six, seven];
+}
+
 $(document).ready(function() {
+	setUpTileArray();
 
 	pubnub.subscribe({
 		channel: gameChannel,
