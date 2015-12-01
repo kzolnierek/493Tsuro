@@ -6,17 +6,21 @@
       
      
       <h1>Tsuro</h1>
+      <h4>Enter your name and select your player color then hit submit. 
+           After hitting submit wait for all players to join before continuing to the next
+           step in the game.</h4>
+      <div class="col-sm-4">
       Player Name: <input id="username" type="text" name="uname">
       <input id='namesubmit' type="submit" value="Submit"><br>
-
+    </div>
+    <div class="col-sm-4">
       <h2 id="presenthead">Users Present</h2>
       <ol id="demo"></ol>
+    </div>
 
 
       <button id ="letsplay" type="button" class="btn btn-default btn-block" >All Users Present. Let's Play!</button>
       
-
-
 
       <!-- at the bottom because then they wont slow the pg down from loading -->
       <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
