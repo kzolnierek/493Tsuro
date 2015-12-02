@@ -15,6 +15,10 @@
 	visibility: hidden;
 }
 
+#greenPerson, #yellowPerson, #pinkPerson, #grayPerson,
+ #navyPerson, #bluePerson, #redPerson, #purplePerson{
+	width: 25%;
+}
 #lowerButton1, #lowerButton2, #lowerButton3{
 	visibility: hidden;
 }
