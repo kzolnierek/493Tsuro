@@ -4,15 +4,29 @@
 	background-image: url(board.png);
 	height: 500px;
 	width: 530px;
-	margin-left: 25%;
+	margin-left: 29%;
 }
 .piece{
 	width:85px;
 	height:85px;
 }
 
+.jumbotron{
+	text-align: center;
+	background-color: #f4511e;
+	color: #fff;
+	padding: 100px 25px;
+	font-family: Montserrat, sans-serif;
+}
+
 #submitButton, #undoButton{
 	visibility: hidden;
+}
+
+#grid{
+	text-align: center;
+	padding: 10px;
+
 }
 
 #greenPerson, #yellowPerson, #pinkPerson, #grayPerson,
