@@ -118,6 +118,7 @@ function dealCards(){
 	    callback : function(m){ console.log("just publishing delt cards")},
 	    error: function(e){console.log("ERROR: " + e)}
 	});
+	document.getElementById('deal').style.visibility ='hidden';
 
 }
 
@@ -181,11 +182,6 @@ function testCardPosition(numberIn, side){
 		console.log("vector here at end: " + tiles);
 	}
 }
-
-$(document).ready(function(){
-    $('[data-toggle="popover"]').popover();   
-});
-
 
 function submitCard(){
 	if(tileSpotNumber == null){

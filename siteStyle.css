@@ -11,12 +11,15 @@
 	height:85px;
 }
 
-.jumbotron{
+#top{
 	text-align: center;
 	background-color: #f4511e;
 	color: #fff;
 	padding: 100px 25px;
 	font-family: Montserrat, sans-serif;
+}
+.header h1{
+	font-size: 700%;
 }
 
 #submitButton, #undoButton{
@@ -25,7 +28,8 @@
 
 #grid{
 	text-align: center;
-	padding: 10px;
+	padding: 20px;
+	font-family: Montserrat, sans-serif;
 
 }
 
@@ -35,4 +39,12 @@
 }
 #lowerButton1, #lowerButton2, #lowerButton3{
 	visibility: hidden;
+}
+#deal{
+    padding: 18px 28px;
+    font-size: 22px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
 }

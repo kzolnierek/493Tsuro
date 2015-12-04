@@ -3,16 +3,28 @@
 		<link rel="stylesheet" type="text/css" href="siteStyle.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    
+    <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
+    <script src="functionality.js"></script>
+
     <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	</head>
 
    <body>
-      <div class="jumbotron">
+      <div id="top" class="header">
         <h1>Tsuro</h1>
-        <button type="button" id= "instr" class="btn btn-primary" data-toggle="popover" data-content="First click 'deal!'' button. Then drag the tile to the square where you want it to go. Then rotate the tile by clicking it in the spot. Finally submit." data-placement="bottom">how to play</button>
+        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#instr">how to play</button>
+        <div id="instr" class="collapse" style="text-align:left">
+          <p>1) First click 'deal!'' button.</p> 
+          <p>2) Then drag the tile to the square where you want it to go.</p> 
+          <p>3) Then rotate the tile by clicking it in the spot.</p> 
+          <p>4) Finally submit.</p>
+        </div>
       </div>
 
   <!-- becuse the player piece stuff doesnt work yet
@@ -27,7 +39,7 @@
       </div>
     -->
       <div id="grid">
-        <button type="button" class="btn btn-large btn-success" onclick="dealCards()">Deal!</button>
+        <button type="button" id="deal" class="btn btn-large btn-success" onclick="dealCards()">Deal!</button>
         <div class="row">
           <img class="tile" id="left" src="" draggable="true" ondragstart="drag(event)"></img>
           <img class="tile" id="middle" src="" draggable="true" ondragstart="drag(event)"></img>
@@ -104,9 +116,7 @@
 
 
       <!-- at the bottom because then they wont slow the pg down from loading -->
-      <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-      <script src="functionality.js"></script>
+
 
    </body>
 </html>
