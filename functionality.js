@@ -1,6 +1,13 @@
 
-var tiles =["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/red.png",
-             "tiles/piece4.png", "tiles/dog.png", "tiles/michigan.png", "tiles/icecream.png"];
+var tiles =["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/piece4.png",
+             "tiles/piece5.png", "tiles/piece6.png", "tiles/piece7.png", "tiles/piece8.png",
+             "tiles/piece9.png", "tiles/piece10.png", "tiles/piece11.png", "tiles/piece12.png",
+             "tiles/piece13.png", "tiles/piece14.png", "tiles/piece15.png", "tiles/piece16.png",
+             "tiles/piece17.png", "tiles/piece18.png", "tiles/piece19.png", "tiles/piece20.png",
+             "tiles/piece21.png", "tiles/piece22.png", "tiles/piece23.png", "tiles/piece23.png",
+             "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
+             "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
+             "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
 var thisPlayerColor;
 var allTileInfo;
 var thisPlayerColor;
