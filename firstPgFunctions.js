@@ -1,13 +1,109 @@
-var userChannel = 'user_channel5';
+var userChannel = 'user_channel2';
+var pieceMovementChannel = 'piece_movement2';
+var userInformationChannel = "user_info2";
+var colorChannel = 'colorChannel2';
+//color name, is taken, the uuid who has the color
+var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "purplePerson", true, 'none',
+			 "grayPerson", true, 'none', "redPerson", true, 'none', "yellowPerson", true, 'none',
+			 "greenPerson", true, 'none', "bluePerson", true, 'none', "orangePerson", true, 'none',];
+var playerName = 'none';
 var colorChosen = 'none';
-var myUUID = PUBNUB.uuid();
+var startSpot = -1;
+var myUUID =  PUBNUB.db.get('session') || (function(){ 
+    var uuid = PUBNUB.uuid(); 
+    PUBNUB.db.set('session', uuid); 
+    return uuid; 
+})();
 var pubnub = PUBNUB({
 	subscribe_key: 'sub-c-b1b8b6c8-8b1c-11e5-84ee-0619f8945a4f', // always required
 	publish_key: 'pub-c-178c8c90-9ea7-46e3-8982-32615dadbba0',    // only required if publishing
-	uuid: myUUID
+	uuid: myUUID,
+	heartbeat: 30 //this is wasteful but it is important to know timeouts at this point
 });
 
-document.getElementById("letsplay").onclick = function () {
+function colorIsAvaliable(colorIn){
+	if(colorIn == 'none')
+		return true;
+	var arrLen = colors.length;
+	for(var i = 0; i + 3 < arrLen; i += 3){
+		if(colors[i] == colorIn)
+			return colors[i + 1];
+	}
+	//if it makes it here your color was invalid
+	console.log("error in isColorAvaliable function!!!!!!!!!!!!!");
+}
+
+function colorTileAppearance(){
+	var lengthofarr = colors.length;
+	for(var i = 0; i + 3 < lengthofarr; i += 3){
+ 		//if the color is free, display it
+ 		if(colors[i + 1] == true && colorChosen == 'none'){
+ 			document.getElementById(colors[i]).style.visibility = 'visible';
+ 			document.getElementById(colors[i]).style.height = '30%';
+ 			document.getElementById(colors[i]).style.height = '15%';
+ 		}
+ 		else{
+			document.getElementById(colors[i]).style.visibility = 'hidden';
+			document.getElementById(colors[i]).style.height = '2%';
+ 		}
+ 	}
+ 	if(colorChosen != 'none'){
+ 			document.getElementById(colorChosen).style.visibility = 'visible';
+ 			document.getElementById(colorChosen).style.width = '60%';
+ 			document.getElementById(colorChosen).style.height = '50%';
+ 			document.getElementById("namesubmit").value = 'Change Selection';
+ 	}
+}
+function refreshColorsDisplayed(){
+	pubnub.history({
+	     channel: colorChannel,
+	     callback: function(m){
+	     	if(m[0][0] != null) //it should only be null the very first time and at beginning of day
+	     		colors = m[0][0].colorArray;
+	     	else
+	     		console.log("its just using the hardcoded array");
+	     	console.log(colors);
+	     	colorTileAppearance();
+		 },
+	     count: 1, // 100 is the default
+	     reverse: false, // false is the default
+	});
+}
+
+function selectColor(colorIn){
+	for(var i = 0; i < colors.length; i += 3){
+		if(colors[i] == colorIn){
+			//hopefully this error wont occur
+			if(colors[i + 1] == false){
+				alert("this color has already been selected. Please choose another.");
+				refreshColorsDisplayed();
+				break;
+			}
+			else{
+				colors[i + 1] = false;
+				colors[i + 2] = myUUID;
+				break;
+			}
+		}
+	}
+	pubnub.publish({
+	    channel: colorChannel,        
+	    message: {colorArray: colors},
+	    callback : function(m){},
+	    error: function(e){console.log(e)}
+	});
+}
+
+function whenTimeExpires(){
+	pubnub.publish({
+					    channel: pieceMovementChannel,        
+					    message: {uuidPass: myUUID, pname: playerName, colorPass: colorChosen, startPos: startSpot},
+					    callback : function(m){},
+					    error: function(e){console.log(e)}
+					});
+}
+
+function letsPlay() {
     pubnub.publish({
 					    channel: userChannel,        
 					    message: {letsPlay: true},
@@ -15,53 +111,107 @@ document.getElementById("letsplay").onclick = function () {
 					    error: function(e){console.log(e)}
 					});
 };
+function resetColorSelector(){
+	colorChosen = 'none';
+	playerName = 'none';
+	//restore old html
+}
 
-document.getElementById("namesubmit").onclick = function () {
-    if(colorChosen == 'none'){
-    	if(document.getElementById("username").value == '')
-    		alert("Please enter your name and select a color for your marker.");
-    	else
-    		alert("Please select a color for your marker.");
-    }
-    else if(document.getElementById("username").value == '')
-    	alert("Please enter your name.");
-    else if(document.getElementById(myUUID) == null){
-		pubnub.publish({
-					    channel: userChannel,        
-					    message: {entryNumber: myUUID, entryName: document.getElementById("username").value, personColor: colorChosen},
-					    callback : function(m){},
-					    error: function(e){console.log(e)}
-		});
-		if(colorChosen != 'greenPerson')
-			document.getElementById('greenPerson').remove();
-		if(colorChosen != 'yellowPerson')
-			document.getElementById('yellowPerson').remove();
-		if(colorChosen != 'pinkPerson')
-			document.getElementById('pinkPerson').remove();
-		if(colorChosen != 'grayPerson')
-			document.getElementById('grayPerson').remove();
-		if(colorChosen != 'navyPerson')
-			document.getElementById('navyPerson').remove();
-		if(colorChosen != 'bluePerson')
-			document.getElementById('bluePerson').remove();
-		if(colorChosen != 'redPerson')
-			document.getElementById('redPerson').remove();
-		if(colorChosen != 'purplePerson')
-			document.getElementById('purplePerson').remove();
-		if(document.getElementById("playNameTxt") == null)
-			console.log("problem found");
-		document.getElementById("playNameTxt").innerHTML 
-					= document.getElementById("username").value;
-		document.getElementById("playNameTxt").style.fontSize = '40px';
-		document.getElementById("username").remove();
-		document.getElementById("namesubmit").remove();
-		document.getElementById(colorChosen).style.width = '100%';
+function checkForColorRepeats(){
+	pubnub.history({
+	     channel: colorChannel,
+	     callback: function(m){
+	     	//console.log(JSON.stringify(m));
+	     	if(m[0][0] != null)
+	     		colors = m[0][0].colorArray;
+			if(!colorIsAvaliable(colorChosen)){
+				alert("Your previously chosen color has been selected by another user. Please resubmit your information.");
+				resetColorSelector();
+			}	
+		 },
+	     count: 1, // 100 is the default
+	     reverse: true, // false is the default
+	});
+}
 
-
+function nameSubmit() {
+	if(document.getElementById("namesubmit").value == 'Submit'){
+	    if(colorChosen == 'none'){
+	    	if(document.getElementById("username").value == '')
+	    		alert("Please enter your name and select a color for your marker.");
+	    	else
+	    		alert("Please select a color for your marker.");
+	    }
+	    else if(document.getElementById("username").value == '')
+	    	alert("Please enter your name.");
+	    else if(document.getElementById(myUUID) == null){
+			//this will add their name to the list
+			pubnub.publish({
+						    channel: userChannel,        
+						    message: {entryNumber: myUUID, entryName: document.getElementById("username").value, personColor: colorChosen},
+						    callback : function(m){},
+						    error: function(e){console.log(e)}
+			});
+			if(document.getElementById("playNameTxt") == null)
+				console.log("problem found");
+			playerName = document.getElementById("username").value;
+			console.log("this is the current color chosen: " + colorChosen);
+			selectColor(colorChosen);
+			document.getElementById("namesubmit").value = 'Change Selection';
+		}
 	}
-	else
-		alert ("You have already submitted your name and color.");
+	//theyre asking for a refresh
+	else {
+		document.getElementById("namesubmit").value = 'Submit';
+		//remove their name from the list
+		pubnub.publish({
+						    channel: userChannel,        
+						    message: {toRemove: myUUID},
+						    callback : function(m){},
+						    error: function(e){console.log(e)}
+		});
+		//find their color and unreserve it
+		var len = colors.length;
+		for(var i = 0; i + 3 < len; i += 3){
+			if(colors[i] == colorChosen){
+				colors[i + 1] = true;
+				colors[i + 2] = 'none';
+				break;
+			}
+		}
+		colorChosen = 'none';
+		playerName = 'none';
+		pubnub.publish({
+		    channel: colorChannel,        
+		    message: {colorArray: colors},
+		    callback : function(m){},
+		    error: function(e){console.log(e)}
+		});
 
+				if(document.getElementById(myUUID) != null){
+			console.log("why can it be found here2?");
+		}
+		else
+			console.log("good its not here2");
+		pubnub.publish({
+			    channel: userChannel,        
+			    message: {entryNumber: myUUID, entryName: 'none', personColor: 'none'},
+			    callback : function(m){},
+			    error: function(e){console.log(e)}
+		});
+				if(document.getElementById(myUUID) != null){
+			console.log("why can it be found here3?");
+		}
+		else
+			console.log("good its not here3");
+	}
+	//this is so that color selection will be tied with uuid
+	pubnub.publish({
+			    channel: userInformationChannel,        
+			    message: {uuidPass: myUUID, pname: playerName, colorPass: colorChosen},
+			    callback : function(m){},
+			    error: function(e){console.log(e)}
+	});
 };
 
 
@@ -71,17 +221,22 @@ function addName(usernumber, usernameIN){
     entry.setAttribute("id", usernumber);
 	entry.appendChild(document.createTextNode(usernameIN));
 	list.appendChild(entry);
+
+
 }
 
 function highlightColor(color){
 	if(colorChosen != 'none')
 		document.getElementById(colorChosen).style.width='25%';
 	colorChosen = color;
-	document.getElementById(color).style.width='35%'; 
+	document.getElementById(color).style.width='35%';
+
 }
 
-$(document).ready(function() {
 
+$(document).ready(function() {
+	console.log("my id: " + myUUID); //uuids are now persistant
+	//used for letsplay, and the list of names (removal/addition etc)
 	pubnub.subscribe({
 		channel: userChannel,
 		message: function(m){console.log("I'm listening:" + m)},
@@ -108,42 +263,89 @@ $(document).ready(function() {
 		disconnect: function(){console.log("disconnected")},
 		callback: function(message, envelope, channel){
 			console.log(message);
-			if(message.entryNumber != null && message.entryName != null && message.personColor != null){
+			if(message.entryNumber != null && message.entryName != null && message.personColor != null 
+				&& message.entryName != 'none' && message.personColor != 'none'){
 				addName(message.entryNumber, message.entryName);
 				if( document.getElementById(message.personColor) != null && message.entryNumber != myUUID)
 					document.getElementById(message.personColor).style.visibility = 'hidden';
 			}
 			else if (message.letsPlay != null)
-				location.href = "file:///Users/Keleigh/Desktop/493Site/node1.html";
+				location.href = "secondPg.html";
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
 				document.getElementById(message.toRemove).remove();
 			}
 		}
 	});
 
+	//restores the list of names
 	pubnub.history({
      channel: userChannel,
      callback: function(m){
+     	//console.log(JSON.stringify(m));
      	var newArr = m[0];
      	var arrayLength = newArr.length;
 		for (var i = 0; i < arrayLength; i++) {
-         	if(newArr[i].entryNumber != null && newArr[i].entryName != null){
+         	if(newArr[i].entryNumber != null && newArr[i].entryName != null
+         		&& newArr[i].entryName != 'none' && newArr[i].personColor != 'none'){
 				addName(newArr[i].entryNumber, newArr[i].entryName );
 			}
 			else if(newArr[i].toRemove != null && document.getElementById(newArr[i].toRemove) != null){
 				document.getElementById(newArr[i].toRemove).remove();
 			}
 		}
-
 	 },
      count: 100, // 100 is the default
      reverse: false, // false is the default
- });
+    });
 
+	//deals with passing the color array
+	pubnub.subscribe({
+		channel: colorChannel,
+		message: function(m){console.log("I'm listening:" + m)},
+		error: function (error) {
+		// Handle error here
+			console.log("error occured");
+			console.log(JSON.stringify(error));
+		},
+		connect: function(){console.log("connected")},
+		disconnect: function(){console.log("disconnected")},
+		callback: function(message, envelope, channel){
+			console.log(message);
+			if(message.colorArray != null ){
+				colors = message.colorArray;
+				colorTileAppearance();
+			}
+		}
+	});
+
+	//this is so that it remembers the user and their previous color selection
+	pubnub.history({
+     channel: userInformationChannel,
+     callback: function(m){
+     	//console.log(JSON.stringify(m));
+   		refreshColorsDisplayed();
+   		var url = location.href;
+		var filename = url.substring(url.lastIndexOf('/')+1)
+     	var newArr = m[0];
+     	//console.log(newArr);
+     	var arrayLength = newArr.length;
+		for (var i = 0; i < arrayLength; i++) {
+	        if(newArr[i].uuidPass != null && newArr[i].uuidPass == myUUID
+	        	&& newArr[i].pname != null && newArr[i].colorPass != null){
+
+				playerName = newArr[i].pname; 
+				colorChosen = newArr[i].colorPass;
+				 if (colorChosen != 'none'){
+					checkForColorRepeats(); //incase your color is taken
+				}
+				refreshColorsDisplayed();
+				
+			}
+		}
+		
+	 },
+     count: 100, // 100 is the default
+     reverse: false, // false is the default
+ 	});
 
 });
-
-// //changes how many users are present
-// function updateUsers(numUsers){
-// 	document.getElementById("presenthead").innerHTML = numUsers + ' Users Present';
-// }

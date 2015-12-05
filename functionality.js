@@ -25,6 +25,8 @@ publish_key: 'pub-c-178c8c90-9ea7-46e3-8982-32615dadbba0',    // only required i
 uuid: myUUID
 });
 
+var angle = 0
+
 //the paths start at the top left corner being called spot oneTo so that it
 //reads like " one goes to four"
 function tileInfo(fileName, one, two, three, four, five, six, seven, eight){
@@ -108,7 +110,6 @@ function addCard(spot, cardin){
 
 function dealCards(){
 	document.getElementById('lowerButton1').style.visibility = 'visible';
-	document.getElementById('lowerButton2').style.visibility = 'visible';
 	document.getElementById('lowerButton3').style.visibility = 'visible';
 	displayHand(tiles[0], tiles[1], tiles[2]);
 	pubnub.publish({
@@ -117,6 +118,7 @@ function dealCards(){
 	    callback : function(m){ console.log("just publishing delt cards")},
 	    error: function(e){console.log("ERROR: " + e)}
 	});
+	document.getElementById('deal').style.visibility ='hidden';
 
 }
 
@@ -141,27 +143,10 @@ function flip(side){
 
 }
 
-function rotate(){
-
-	//this will have to be done through document.getElementById('middle').style.... because css seems to be the best option
-	//transform: rotate(7deg);
-
-	// console.log("rotate successfully called");
-	// var curRotation = document.getElementById('middle').rotate;
-	// console.log("cur ro " + curRotation);
-	// switch(curRotation){
-	// 	case "90":
-	// 		document.getElementById('middle').rotate = "180";
-	// 	case "180":
-	// 		document.getElementById('middle').rotate = "-90";
-	// 	case "-90":
-	// 		document.getElementById('middle').rotate = "0";
-	// 	case "0":
-	// 		document.getElementById('middle').rotate = "90";
-
-	// }
-	// document.getElementById('middle').rotate="90";
-
+function rotate(number){
+	angle += 90;
+	var string = '#' + number;
+	$(string).css('transform','rotate(' + angle + 'deg)');
 }
 
 

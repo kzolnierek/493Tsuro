@@ -7,8 +7,6 @@
 		<link rel="stylesheet" type="text/css" href="siteStyle.css">
 	</head>
    <body>
-            
-
       <h1>Tsuro</h1>
       <h4>Enter your name and select your player color then hit submit. </h4>
       <h4>After hitting submit wait for all players to join before continuing to the next step in the game.</h4>
@@ -25,13 +23,13 @@
         <img  id="navyPerson"   src="personMarkers/navyPerson.png"   onclick="highlightColor('navyPerson')" ></img>
         <img  id="bluePerson"   src="personMarkers/bluePerson.png"   onclick="highlightColor('bluePerson')" ></img>
         <br><br> 
-        <input id='namesubmit' type="submit" value="Submit"  class="btn btn-default btn-block">
+        <input id='namesubmit' type="submit" value="Submit"  class="btn btn-default btn-block" onclick="nameSubmit()">
       </div>
 
       <div class="col-md-4">
         <h2 id="presenthead">Users Present</h2>
         <ol id="demo"></ol>
-        <button id ="letsplay" type="button" class="btn btn-default btn-block" >
+        <button id ="letsplay" type="button" class="btn btn-default btn-block" onclick="letsPlay()">
                           All Users Present. Let's Play!</button>
       </div>
 
