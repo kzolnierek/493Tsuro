@@ -1,7 +1,7 @@
-var userChannel = 'user_channel2';
-var pieceMovementChannel = 'piece_movement2';
-var userInformationChannel = "user_info2";
-var colorChannel = 'colorChannel2';
+var userChannel = 'user_channel14'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement14';
+var userInformationChannel = "user_info14";
+var colorChannel = 'colorChannel14';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "purplePerson", true, 'none',
 			 "grayPerson", true, 'none', "redPerson", true, 'none', "yellowPerson", true, 'none',
@@ -26,8 +26,17 @@ function colorIsAvaliable(colorIn){
 		return true;
 	var arrLen = colors.length;
 	for(var i = 0; i + 3 < arrLen; i += 3){
-		if(colors[i] == colorIn)
-			return colors[i + 1];
+		if(colors[i] == colorIn){
+			console.log("here with: " + colors[i]);
+			if(colors[i + 2] == myUUID){
+				console.log(colors [i+2]);
+				console.log(myUUID);
+				return true;
+			}
+			else
+				return colors[i + 1];
+		}
+
 	}
 	//if it makes it here your color was invalid
 	console.log("error in isColorAvaliable function!!!!!!!!!!!!!");
@@ -74,7 +83,7 @@ function selectColor(colorIn){
 	for(var i = 0; i < colors.length; i += 3){
 		if(colors[i] == colorIn){
 			//hopefully this error wont occur
-			if(colors[i + 1] == false){
+			if(colors[i + 1] == false && colors[i + 2] != myUUID){
 				alert("this color has already been selected. Please choose another.");
 				refreshColorsDisplayed();
 				break;
@@ -111,6 +120,7 @@ function letsPlay() {
 					    error: function(e){console.log(e)}
 					});
 };
+
 function resetColorSelector(){
 	colorChosen = 'none';
 	playerName = 'none';
@@ -121,16 +131,22 @@ function checkForColorRepeats(){
 	pubnub.history({
 	     channel: colorChannel,
 	     callback: function(m){
+	     	console.log("in check for color repeats");
 	     	//console.log(JSON.stringify(m));
-	     	if(m[0][0] != null)
+	     	console.log(colors);
+	     	if(m[0][0] != null){
 	     		colors = m[0][0].colorArray;
-			if(!colorIsAvaliable(colorChosen)){
+	     	}
+			if(colorIsAvaliable(colorChosen) == false){
 				alert("Your previously chosen color has been selected by another user. Please resubmit your information.");
 				resetColorSelector();
-			}	
+				colorTileAppearance();
+			}
+			else
+				selectColor(colorChosen);	
 		 },
 	     count: 1, // 100 is the default
-	     reverse: true, // false is the default
+	     reverse: false, // false is the default
 	});
 }
 
@@ -187,23 +203,13 @@ function nameSubmit() {
 		    callback : function(m){},
 		    error: function(e){console.log(e)}
 		});
-
-				if(document.getElementById(myUUID) != null){
-			console.log("why can it be found here2?");
-		}
-		else
-			console.log("good its not here2");
 		pubnub.publish({
 			    channel: userChannel,        
 			    message: {entryNumber: myUUID, entryName: 'none', personColor: 'none'},
 			    callback : function(m){},
 			    error: function(e){console.log(e)}
 		});
-				if(document.getElementById(myUUID) != null){
-			console.log("why can it be found here3?");
-		}
-		else
-			console.log("good its not here3");
+
 	}
 	//this is so that color selection will be tied with uuid
 	pubnub.publish({
@@ -272,7 +278,23 @@ $(document).ready(function() {
 			else if (message.letsPlay != null)
 				location.href = "secondPg.html";
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
+                var lenOfCol = colors.length;
+                for(var i = 2; i < lenOfCol; i += 3){
+                    if(colors[i] == message.toRemove){
+                        console.log(colors[i]);
+                        console.log(colors[i-1]);
+                        colors[i-1] = true;
+                        break;
+                    }
+                }
 				document.getElementById(message.toRemove).remove();
+				//publish results so everyone gets them
+                pubnub.publish({
+                    channel: colorChannel,        
+                    message: {colorArray: colors},
+                    callback : function(m){},
+                    error: function(e){console.log(e)}
+                });
 			}
 		}
 	});
@@ -327,20 +349,23 @@ $(document).ready(function() {
    		var url = location.href;
 		var filename = url.substring(url.lastIndexOf('/')+1)
      	var newArr = m[0];
+     	console.log("hist arr");
+     	console.log(newArr);
      	//console.log(newArr);
      	var arrayLength = newArr.length;
 		for (var i = 0; i < arrayLength; i++) {
 	        if(newArr[i].uuidPass != null && newArr[i].uuidPass == myUUID
-	        	&& newArr[i].pname != null && newArr[i].colorPass != null){
+	        	&& newArr[i].pname != null && newArr[i].colorPass != null 
+	        	){
+					playerName = newArr[i].pname; 
+					colorChosen = newArr[i].colorPass;
+					console.log(playerName + "    " + colorChosen);
+					if(newArr[i].colorPass != 'none' && newArr[i].pname!= 'none')
+						checkForColorRepeats(); //incase your color is taken
 
-				playerName = newArr[i].pname; 
-				colorChosen = newArr[i].colorPass;
-				 if (colorChosen != 'none'){
-					checkForColorRepeats(); //incase your color is taken
-				}
-				refreshColorsDisplayed();
-				
 			}
+			
+			
 		}
 		
 	 },

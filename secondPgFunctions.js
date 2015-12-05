@@ -1,7 +1,7 @@
-var userChannel = 'user_channel2';
-var pieceMovementChannel = 'piece_movement2';
-var userInformationChannel = "user_info2";
-var colorChannel = 'colorChannel2';
+var userChannel = 'user_channel14'; //THESE NEED TO MATCH FIRST PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement14';
+var userInformationChannel = "user_info14";
+var colorChannel = 'colorChannel14';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "purplePerson", true, 'none',
              "grayPerson", true, 'none', "redPerson", true, 'none', "yellowPerson", true, 'none',
@@ -74,9 +74,15 @@ $(document).ready(function() {
 
             if (message.toRemove != null && document.getElementById(message.toRemove) != null){
                                 //flip through the color array and delete any color the player may have been associated with
+               console.log("in the to remove part");
                 var lenOfCol = colors.length;
                 for(var i = 2; i < lenOfCol; i += 3){
+                    console.log(colors[i]);
+                    console.log(colors[i-1]);
                     if(colors[i] == myUUID){
+                        console.log("inside fun");
+                        console.log(colors[i]);
+                        console.log(colors[i-1]);
                         colors[i-1] = true;
                         colors[i] = 'none';
                         break;
