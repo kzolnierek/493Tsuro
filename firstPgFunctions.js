@@ -114,11 +114,11 @@ function whenTimeExpires(){
 
 function letsPlay() {
     pubnub.publish({
-					    channel: userChannel,        
-					    message: {letsPlay: true},
-					    callback : function(m){},
-					    error: function(e){console.log(e)}
-					});
+	    channel: userChannel,        
+	    message: {letsPlay: true},
+	    callback : function(m){},
+	    error: function(e){console.log(e)}
+	});
 };
 
 function resetColorSelector(){
@@ -276,7 +276,7 @@ $(document).ready(function() {
 					document.getElementById(message.personColor).style.visibility = 'hidden';
 			}
 			else if (message.letsPlay != null)
-				location.href = "secondPg.html";
+				location.href = "gamePg.html";
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
                 var lenOfCol = colors.length;
                 for(var i = 2; i < lenOfCol; i += 3){
