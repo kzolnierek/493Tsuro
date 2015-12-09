@@ -232,11 +232,9 @@ function playerTurns(){
 	var oldFound = false;
 	var colorLen = colors.length;
 	while(!set && overallCount <= 16){
-		console.log(colors[i] + "   " + i);
 		if(thisPlayersTurn == 'none' && colors[i] != 'none'){
 			thisPlayersTurn = colors[i];
 			found = true;
-			console.log("adsfasdfasdfasdfasdfasdfasdfasdfas");
 		}
 		else if(colors[i] == thisPlayersTurn){
 			oldFound = false;
@@ -245,12 +243,13 @@ function playerTurns(){
 			thisPlayersTurn = colors[i];
 			set = true;
 		}
-		if(i + 2 < colorLen)
-			i += 2;
+		if(i + 3 < colorLen)
+			i += 3;
 		else
 			i = 2;
 		++overallCount;
 	}
+	console.log("up next: " + thisPlayersTurn);
 }
 
 
