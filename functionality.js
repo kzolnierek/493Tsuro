@@ -8,20 +8,22 @@ var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/
              "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
              "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
              "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
-var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "purplePerson", true, 'none',
-             "grayPerson", true, 'none', "redPerson", true, 'none', "yellowPerson", true, 'none',
-             "greenPerson", true, 'none', "bluePerson", true, 'none', "orangePerson", true, 'none',];
+var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
+			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
+			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
 var lastCard = "none";
 var nextSquareForTile = 0;
+var thisPlayersTurn = 'none'; //this gets set in playerTurns with their player id
 var startSpot = -1;
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel';
-var cardsChannel = 'send_cards';
-var colorChannel = 'colorChannel14';
-var userInformationChannel = "user_info14";
+var gameChannel = 'game_channel15';
+var userChannel = 'user_channel15';
+var cardsChannel = 'send_cards15';
+var colorChannel = 'colorChannel15';
+var userInformationChannel = "user_info15";
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
     PUBNUB.db.set('session', uuid); 
@@ -33,7 +35,8 @@ var angle = 0;
 var pubnub = PUBNUB({
 subscribe_key: 'sub-c-b1b8b6c8-8b1c-11e5-84ee-0619f8945a4f', // always required
 publish_key: 'pub-c-178c8c90-9ea7-46e3-8982-32615dadbba0',    // only required if publishing
-uuid: myUUID
+uuid: myUUID,
+heartbeat: 30 //kind of wasteful so we can increase it if you want but it is used for presence in the game
 });
 
 $(document).ready(main);
@@ -116,7 +119,20 @@ function main(){
             }
         }
     });
-
+    //get color array from first pg
+    pubnub.history({
+	     channel: colorChannel,
+	     callback: function(m){
+	     	if(m[0][0] != null) //it should only be null the very first time and at beginning of day
+	     		colors = m[0][0].colorArray;
+	     	else
+	     		console.log("its just using the hardcoded array");
+	     	console.log("in the color history channel");
+	     	console.log(colors);
+		 },
+	     count: 1, // 100 is the default
+	     reverse: false, // false is the default
+	});
 
     //this is so that it remembers the user and their previous color selection
     pubnub.history({
@@ -149,10 +165,94 @@ function main(){
      count: 100, // 100 is the default
      reverse: false, // false is the default
     });
+	
+	//used for registering when people leave
+	pubnub.subscribe({
+		channel: userChannel,
+		message: function(m){console.log("I'm listening:" + m)},
+		error: function (error) {
+		// Handle error here
+			console.log("error occured");
+			console.log(JSON.stringify(error));
+		},
+		presence: function(m){
+			console.log(m);
+			// updateUsers(m.occupancy);
+			if(m.action == 'leave' || m.action == 'timeout'){		
+				pubnub.publish({
+					    channel: userChannel,        
+					    message: {toRemove: m.uuid},
+					    callback : function(m){},
+					    error: function(e){console.log(e)}
+				});
+			}
+		},
+		connect: function(){console.log("connected")},
+		disconnect: function(){console.log("disconnected")},
+		callback: function(message, envelope, channel){
+			console.log(message);
+			// if(message.entryNumber != null && message.entryName != null && message.personColor != null 
+			// 	&& message.entryName != 'none' && message.personColor != 'none'){
+			// 	addName(message.entryNumber, message.entryName);
+			// 	if( document.getElementById(message.personColor) != null && message.entryNumber != myUUID)
+			// 		document.getElementById(message.personColor).style.visibility = 'hidden';
+			
+			if (message.toRemove != null){
+				//THIS COULD EVENTUALLY ALSO REMOVE THEIR COLOR PIECE AND NOTIFY THE OTHER PLAYERS IF SOMEONE JUST EXITS
+                var lenOfCol = colors.length;
+                for(var i = 2; i < lenOfCol; i += 3){
+                    if(colors[i] == message.toRemove){
+                        console.log(colors[i]);
+                        console.log(colors[i-1]);
+                        colors[i-1] = true;
+                        break;
+                    }
+                }
+				//publish results so everyone gets them
+                pubnub.publish({
+                    channel: colorChannel,        
+                    message: {colorArray: colors},
+                    callback : function(m){},
+                    error: function(e){console.log(e)}
+                });
+			}
+		}
+	});
 
 	timerFunction();
 
 } //end of main
+
+//setup turns and change turn
+function playerTurns(){
+	console.log(colors);
+	var i = 2;
+	var overallCount = 0;
+	var set = false;
+	var oldFound = false;
+	var colorLen = colors.length;
+	while(!set && overallCount <= 16){
+		console.log(colors[i] + "   " + i);
+		if(thisPlayersTurn == 'none' && colors[i] != 'none'){
+			thisPlayersTurn = colors[i];
+			found = true;
+			console.log("adsfasdfasdfasdfasdfasdfasdfasdfas");
+		}
+		else if(colors[i] == thisPlayersTurn){
+			oldFound = false;
+		}
+		else if(oldFound && colors[i] != 'none'){
+			thisPlayersTurn = colors[i];
+			set = true;
+		}
+		if(i + 2 < colorLen)
+			i += 2;
+		else
+			i = 2;
+		++overallCount;
+	}
+}
+
 
 //the paths start at the top left corner being called spot oneTo so that it
 //reads like " one goes to four"
@@ -211,7 +311,7 @@ function readyToPlayGame(){
     console.log("now start up the turns and deal");
     piecePlacement = false;
      $("#lgPlayerPiece").remove();
-    //GET RID OF DEAL BUTTON AND MAKE IT AUTOMATIC
+    playerTurns();
     dealCards();
 
    

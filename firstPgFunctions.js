@@ -1,11 +1,11 @@
-var userChannel = 'user_channel14'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement14';
-var userInformationChannel = "user_info14";
-var colorChannel = 'colorChannel14';
+var userChannel = 'user_channel15'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement15';
+var userInformationChannel = "user_info15";
+var colorChannel = 'colorChannel15';
 //color name, is taken, the uuid who has the color
-var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "purplePerson", true, 'none',
-			 "grayPerson", true, 'none', "redPerson", true, 'none', "yellowPerson", true, 'none',
-			 "greenPerson", true, 'none', "bluePerson", true, 'none', "orangePerson", true, 'none',];
+var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
+			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
+			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
 var startSpot = -1;
@@ -275,8 +275,16 @@ $(document).ready(function() {
 				if( document.getElementById(message.personColor) != null && message.entryNumber != myUUID)
 					document.getElementById(message.personColor).style.visibility = 'hidden';
 			}
-			else if (message.letsPlay != null)
+			else if (message.letsPlay != null){
+				//just for good measure
+				pubnub.publish({
+				    channel: colorChannel,        
+				    message: {colorArray: colors},
+				    callback : function(m){},
+				    error: function(e){console.log(e)}
+				});
 				location.href = "gamePg.html";
+			}
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
                 var lenOfCol = colors.length;
                 for(var i = 2; i < lenOfCol; i += 3){
