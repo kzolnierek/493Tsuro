@@ -17,6 +17,7 @@ var lastCard = "none";
 var nextSquareForTile = 0;
 var thisPlayersTurn = 'none'; //this gets set in playerTurns with their player id
 var startSpot = -1;
+var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
 var gameChannel = 'game_channel15';
@@ -74,8 +75,9 @@ function main(){
 				// ALSO CHECK FOR DEATH
 			}
 			//this is for the player start spot selection
-			if(message.colorPassed != undefined && message.fileN != undefined && message.tileN != undefined)
+			if(message.colorPassed != undefined && message.fileN != undefined && message.tileN != undefined){
 				placePersonMarker(message.colorPassed, message.fileN, message.tileN);
+			}
 		}
 	});
 	
@@ -271,27 +273,166 @@ function tileInfo(fileName, one, two, three, four, five, six, seven, eight){
 //this is so that you will know where the paths go on each tile
 //THIS NEEDS TO BE UPDATED WITH ALL OF THE NEW TILES
 function setUpTileArray(){
-	var one   = new tileInfo("tiles/piece1.png", 2, 1, 4, 3, 6, 5, 8, 7);
-	var two   = new tileInfo("tiles/piece2.png", 6, 5, 8, 7, 2, 1, 4, 3);
-	var three = new tileInfo("tiles/piece3.png", 2, 1, 7, 8, 6, 5, 4, 3);
-    var four  = new tileInfo("tiles/piece4.png", 6, 4, 8, 2, 7, 1, 5, 3);
-    var five  = new tileInfo("tiles/dog.png", 6, 5, 8, 7, 2, 1, 4, 3);
-    var six   = new tileInfo("tiles/michigan.png", 6, 5, 8, 7, 2, 1, 4, 3);
-    var seven = new tileInfo("tiles/icecream.png", 6, 5, 8, 7, 2, 1, 4, 3);
+	var one   = ["tiles/piece1.png", 2, 1, 4, 3, 6, 5, 8, 7];
+	var two   = ["tiles/piece2.png", 8, 7, 4, 3, 6, 5, 2, 1];
+	var three = ["tiles/piece3.png", 8, 3, 2, 7, 6, 5, 4, 1];
+    var four  = ["tiles/piece4.png", 6, 4, 8, 2, 7, 1, 5, 3];
+    var five  = ["tiles/dog.png",    6, 5, 8, 7, 2, 1, 4, 3];
+    var six   = ["tiles/michig.png", 6, 5, 8, 7, 2, 1, 4, 3];
+    var seven = ["tiles/icecreapng", 6, 5, 8, 7, 2, 1, 4, 3];
     allTilesInfo = [one, two, three, four, five, six, seven];
 }
 
+//this takes in the spot that the user is at and 
+//returns the spot that corrosponds to on the new tile 
+function sideSquare(oldSpot){
+	switch(oldSpot){
+		case "1":
+			return 6;
+			break;
+		case "2":
+			return 5;
+			break;
+		case "3":
+			return 8;
+			break;
+		case "4":
+			return 7;
+			break;
+		case  "5":
+			return 2;
+			break;
+		case "6":
+			return 1;
+			break;
+		case "7":
+			return 4;
+			break;
+		case "8":
+			return 3;
+			break;
+	}
+}
+
+//this will return false if not or top, right, left, corner, bottom if it is
+function tileIsEdgePiece(num){
+	if (num == 1)
+		return "TL corner";
+	else if(num == 6)
+		return "TR corner";
+	else if(num == 31)
+		return "BL corner";
+	else if(num == 36)
+		return "BR corner";
+	else if (num < 6)
+		return "top";
+	else if (num > 31)
+		return "bottom";
+	else if( num % 6 == 0)
+		return "right";
+	else if ((num - 1) % 6 == 0)
+		return "left";
+	else
+		return "false";
+}
+
+//go to ajacent card
+function jumpCard(index){
+	console.log("jump card!!!!!!!!!");
+	var currentOverlay = $("#" + colorChosen).attr("src");
+	currentOverlay = currentOverlay[currentOverlay.indexOf(".") - 1];
+	var positionOnAjacentCard = sideSquare(currentOverlay);
+	var newOverlayFile = "img/" + colorChosen + positionOnAjacentCard + ".png";
+	//since the publish isnt recieved until after the follow path function do this manually
+	placePersonMarker(colorChosen , newOverlayFile, nextSquareForTile);
+
+}
+
+//WHAT SHOULD HAPPEN WHEN A USER DIES
+function death(){
+	console.log("you just died");
+	dead = true;
+	alert("youre dead");
+}
+
+//this will return false if not or top, right, left, corner, bottom if it is
+function calculateNewNextSpot(overlaySpot){
+	var position = tileIsEdgePiece(nextSquareForTile);
+	//die if you go up
+	if((overlaySpot == 1 || overlaySpot == 2) && 
+		(position == "TL corner" || position == "TR corner" || position == "top"))
+		death();
+	
+	//die if you go right
+	else if((overlaySpot == 3 || overlaySpot == 4) && 
+		(position == "BR corner" || position == "TR corner" || position == "right"))
+		death();
+	//die if you go left
+	else if((overlaySpot == 7 || overlaySpot == 8) && 
+		(position == "BL corner" || position == "TL corner" || position == "left"))
+		death();
+	//die if you go down
+	else if((overlaySpot == 5 || overlaySpot == 6) && 
+		(position == "BR corner" || position == "BL corner" || position == "bottom"))
+		death();
+	//go right
+	else if(overlaySpot == 3 || overlaySpot == 4){
+		++nextSquareForTile;
+	}
+	//go left
+	else if(overlaySpot == 7 || overlaySpot == 8){
+		--nextSquareForTile;
+	}
+	//go up 
+	else if(overlaySpot == 1 || overlaySpot == 2){
+		nextSquareForTile += 6;
+	}
+	//go down
+	else if(overlaySpot == 5 || overlaySpot == 6){
+		nextSquareForTile -= 6;
+	}
+}
+
+//follow the card on the path
+function followPath(index){
+	console.log("follow path");
+	var currentOverlay = $("#" + colorChosen).attr("src");
+	currentOverlay = currentOverlay[currentOverlay.indexOf(".") - 1];
+	// var positionOnAjacentCard = sideSquare(currentOverlay);
+	var newOverlayFile = "img/" + colorChosen + allTilesInfo[index][currentOverlay] + ".png";
+	publishPlayerMovement(colorChosen , newOverlayFile, nextSquareForTile);
+
+//THIS IS JUMPPY BCZ OF FILE PASSING AND SHIT
+
+	placePersonMarker(colorChosen , newOverlayFile, nextSquareForTile);
+	//update nextSquareForTile
+	calculateNewNextSpot(allTilesInfo[index][currentOverlay]);
+}
 
 function movePlayerPiece(){
-	var leng = allTilesInfo.length;
-	for(var i = 0; i < leng; i++){
-		if(setUpTileArray[i] == 
-			$("#" + nextSquareForTile).css('background-image'){
-			console.log("tile found: " + $("#" + nextSquareForTile).css('background-image'));
-			// remove old marker
-			// put in correct new marker
-			// publish change
-			publishPlayerMovement(col , file, tile);
+	//do a check if you are on the ajacent card ,if you arent then jump, if you are then follow path
+	console.log("move player piece function");
+	var backgpicture = $("#" + nextSquareForTile).css('background-image');
+	backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
+	//do this stuff while there are still tiles you need to navigate across
+	while(!dead && backgpicture != "purpleSquare.png)"){
+		var leng = allTilesInfo.length;
+		var tileToLookFor = $("#" + nextSquareForTile).css('background-image');
+		tileToLookFor = tileToLookFor.replace(/^.*[\\\/]/, '')
+		var test = ($("#" + colorChosen).parent());
+		var playerCurrentLocation = test.attr("id");
+		for(var i = 0; i < leng; i++){
+			if(allTilesInfo[i][0] + ")" == "tiles/" + tileToLookFor){
+				//if you are not on the current card then jump
+				//if there is a card in your next spot and you are not on it
+				if(nextSquareForTile != playerCurrentLocation)
+					jumpCard(i);
+				//then follow the path
+				followPath(i);
+				backgpicture = $("#" + nextSquareForTile).css('background-image');
+				backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
+				break;
+			}
 		}
 	}
 }
@@ -393,27 +534,7 @@ function downFicha(){
 
 }
 
-//this will return false if not or top, right, left, corner, bottom if it is
-function tileIsEdgePiece(num){
-	if (num == 1)
-		return "TL corner";
-	else if(num == 6)
-		return "TR corner";
-	else if(num == 31)
-		return "BL corner";
-	else if(num == 36)
-		return "BR corner";
-	else if (num < 6)
-		return "top";
-	else if (num > 31)
-		return "bottom";
-	else if( num % 6 == 0)
-		return "right";
-	else if ((num - 1) % 6 == 0)
-		return "left";
-	else
-		return "false";
-}
+
 
 function edgeOrCorner(num){
 	if (num == 1 ||num == 6 || num == 31 || num == 36){
@@ -531,20 +652,18 @@ function getPersonStartFileName(num, alreadySetVal){
 //pass in the color, filename, and tile number
 function placePersonMarker(colorIn, filename, tileNum){
 	console.log("placePersonMarker");
-	//if it is not your color (because you would have already added it)
-	if(colorIn != colorChosen){
+	// if(colorIn != colorChosen){
 		if($("#" + colorIn).length > 0) //if old pic remove it
 			$("#" + colorIn).remove();
 		var htmlImgLine = $(document.createElement('img'));
 		htmlImgLine.attr("src", filename);
 		var overlayNum = filename[filename.indexOf(".") - 1];
-		console.log("this is the overlay num: " + overlayNum);
 		var zaxisCss = "ficha " + "overlay" + overlayNum;
 		htmlImgLine.attr("class", zaxisCss);
 		htmlImgLine.attr("id", colorIn);
 		$("#" + tileNum).append(htmlImgLine);
 
-	}
+	//}
 }
 
 function publishPlayerMovement(col , file, tile){
@@ -556,8 +675,7 @@ function publishPlayerMovement(col , file, tile){
 	    error: function(e){console.log(e)}
 	});
 }
-function piecePlacementFn(square){
-	
+function piecePlacementFn(square){	
 	//check to see if the person's piece is already on the board 
 	if($("#" + colorChosen).length > 0){
 		var personMover = $("#" + colorChosen);
@@ -568,14 +686,10 @@ function piecePlacementFn(square){
 					&& square.children().length < 4)){
 				var currentNumber = personMover.attr("src")[personMover.attr("src").indexOf(".") - 1];
 				var filename = getPersonStartFileName(square.attr("id"), currentNumber);
-				var classnames = "ficha " + "overlay" + filename[filename.indexOf(".") - 1];
-				personMover.removeClass().addClass(classnames);
-				personMover.attr("src", filename);
 				publishPlayerMovement(colorChosen, filename, square.attr("id"));
 			}
 			else
 				alert("Someone is on the other spot....");
-
 		}
 		//else delete their old spot bcz they want a new one
 		else{
@@ -586,14 +700,8 @@ function piecePlacementFn(square){
 	if($("#" + colorChosen).length <= 0 && (square.children().length  < 2 
 								|| (edgeOrCorner(square.attr("id")) == "corner" 
 								&& square.children().length < 4))){
-		var personMover = $(document.createElement('img'));
+		//var personMover = $(document.createElement('img'));
 		var filename = getPersonStartFileName(square.attr("id"), -1);
-		console.log(filename);
-		personMover.attr("src", filename);
-		var zaxisCss = "ficha " + "overlay" + filename[filename.indexOf(".") - 1];
-		personMover.attr("class", zaxisCss);
-		personMover.attr("id", colorChosen);
-		square.append(personMover);
 		publishPlayerMovement(colorChosen, filename, square.attr("id"));
 	}
 }
@@ -677,9 +785,9 @@ function submitCard(){
 		console.log("NO TILES LEFT");
 		//WE NEED TO SET THE LAST PERSON TO GET A CARD HERE TOO -DRAGON TILE or just add it regularly?? - this might cause probs though
 	}
-	//CALCULATE NEXT CARD!!! (its global var called nextSquareForTile and is local to user) 
-	//----this will just loop through the detailed card array till it finds the right one then index the spot + 1
-	nextSquareForTile = 0;
+	movePlayerPiece();
+	$("#submitButton").css("visibility", "hidden");
+	$("#undoButton").css("visibility", "hidden");
 	lastCard = "none";
 }
 
