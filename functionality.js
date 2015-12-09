@@ -49,7 +49,7 @@ function main(){
     controlarFlujo();
     setUpTileArray();
 
-    //SHUFFLE CARDS GOES HERE
+    //SHUFFLE CARDS GOES HERE (dont forget to publish the array after--unless they will all shuffle the same -- and also if theyre all publishing make sure only the last one is registered for all users)
 
     //set up subscriptions
     pubnub.subscribe({
@@ -78,7 +78,8 @@ function main(){
 				placePersonMarker(message.colorPassed, message.fileN, message.tileN);
 		}
 	});
-
+	
+	//this just removes cards from the tiles array
 	pubnub.subscribe({
 		channel: cardsChannel,
 		message: function(m){console.log("send cards listening:" + m)},
@@ -281,6 +282,19 @@ function setUpTileArray(){
 }
 
 
+function movePlayerPiece(){
+	var leng = allTilesInfo.length;
+	for(var i = 0; i < leng; i++){
+		if(setUpTileArray[i] == 
+			$("#" + nextSquareForTile).css('background-image'){
+			console.log("tile found: " + $("#" + nextSquareForTile).css('background-image'));
+			// remove old marker
+			// put in correct new marker
+			// publish change
+			publishPlayerMovement(col , file, tile);
+		}
+	}
+}
 
 function dealCards(){
 	displayHand(tiles[0], tiles[1], tiles[2]);
@@ -533,7 +547,7 @@ function placePersonMarker(colorIn, filename, tileNum){
 	}
 }
 
-function publishPlayerStartMovement(col , file, tile){
+function publishPlayerMovement(col , file, tile){
 	console.log("publish player start movement " + col + " " + file + " " + tile);
 	pubnub.publish({
 	    channel: gameChannel,        
@@ -557,7 +571,7 @@ function piecePlacementFn(square){
 				var classnames = "ficha " + "overlay" + filename[filename.indexOf(".") - 1];
 				personMover.removeClass().addClass(classnames);
 				personMover.attr("src", filename);
-				publishPlayerStartMovement(colorChosen, filename, square.attr("id"));
+				publishPlayerMovement(colorChosen, filename, square.attr("id"));
 			}
 			else
 				alert("Someone is on the other spot....");
@@ -580,7 +594,7 @@ function piecePlacementFn(square){
 		personMover.attr("class", zaxisCss);
 		personMover.attr("id", colorChosen);
 		square.append(personMover);
-		publishPlayerStartMovement(colorChosen, filename, square.attr("id"));
+		publishPlayerMovement(colorChosen, filename, square.attr("id"));
 	}
 }
 
@@ -592,13 +606,6 @@ function selectSquare(){
 		console.log("next square for tile = " + nextSquareForTile);
 	}
 }
-
-//returns string of next avaliable overlay
-//pass in the tile number
-function nextAvaliableOverlay(num){
-
-}
-
 
 function addCard(spot, cardin){
 	$("#" + spot).css('background-image', 'url(' + cardin + ')');
