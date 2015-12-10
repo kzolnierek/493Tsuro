@@ -1,7 +1,7 @@
-var userChannel = 'user_channel26'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement26';
-var userInformationChannel = "user_info26";
-var colorChannel = 'colorChannel26';
+var userChannel = 'user_channel37'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement37';
+var userInformationChannel = "user_info37";
+var colorChannel = 'colorChannel37';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
@@ -25,7 +25,7 @@ function colorIsAvaliable(colorIn){
 	if(colorIn == 'none')
 		return true;
 	var arrLen = colors.length;
-	for(var i = 0; i + 3 < arrLen; i += 3){
+	for(var i = 0; i + 3 <= arrLen; i += 3){
 		if(colors[i] == colorIn){
 			console.log("here with: " + colors[i]);
 			if(colors[i + 2] == myUUID){
@@ -44,7 +44,8 @@ function colorIsAvaliable(colorIn){
 
 function colorTileAppearance(){
 	var lengthofarr = colors.length;
-	for(var i = 0; i + 3 < lengthofarr; i += 3){
+	for(var i = 0; i + 3 <= lengthofarr; i += 3){
+		var temp = colors[i];
  		//if the color is free, display it
  		if(colors[i + 1] == true && colorChosen == 'none'){
  			document.getElementById(colors[i]).style.visibility = 'visible';
