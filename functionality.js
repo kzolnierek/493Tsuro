@@ -503,7 +503,7 @@ function win(){
 
 	 pubnub.publish({
         channel: blockChannel,        
-        message: {status: "finished"},
+        message: {gameStatus: "finished"},
         callback : function(m){},
         error: function(e){console.log(e)}
     });

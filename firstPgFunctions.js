@@ -398,11 +398,14 @@ $(document).ready(function() {
      	var newArr = m[0];
      	var arrayLength = newArr.length;
      	var statusFound = false;
-		for (var i = 0; i < arrayLength && !statusFound; i++) {
+		for (var i = arrayLength - 1; i >= 0 && !statusFound; i--) {
+			var temp = newArr[i];
          	if(newArr[i].gameStatus != null ){
          		statusFound = true;
-				if(gameStatus = 'started')
-					alert("A game is in progress, please exit and try again later.")
+				if(newArr[i].gameStatus == 'started')
+					alert("A game is in progress, please exit and try again later.");
+				else if(newArr[i].gameStatus =='finished')
+					break;
 			}
 		}
 	 },
