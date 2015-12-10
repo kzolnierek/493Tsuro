@@ -49,8 +49,8 @@ function colorTileAppearance(){
  		//if the color is free, display it
  		if(colors[i + 1] == true && colorChosen == 'none'){
  			document.getElementById(colors[i]).style.visibility = 'visible';
- 			document.getElementById(colors[i]).style.height = '30%';
  			document.getElementById(colors[i]).style.height = '15%';
+ 			document.getElementById(colors[i]).style.width = '30%';
  		}
  		else{
 			document.getElementById(colors[i]).style.visibility = 'hidden';
@@ -60,7 +60,8 @@ function colorTileAppearance(){
  	if(colorChosen != 'none'){
  			document.getElementById(colorChosen).style.visibility = 'visible';
  			document.getElementById(colorChosen).style.width = '60%';
- 			document.getElementById(colorChosen).style.height = '50%';
+ 			document.getElementById(colorChosen).style.height = '60%';
+ 			document.getElementById(colorChosen).style.border = '0px';
  			document.getElementById("namesubmit").value = 'Change Selection';
  	}
 }
@@ -233,10 +234,18 @@ function addName(usernumber, usernameIN){
 }
 
 function highlightColor(color){
-	if(colorChosen != 'none')
-		document.getElementById(colorChosen).style.width='25%';
-	colorChosen = color;
-	document.getElementById(color).style.width='35%';
+	if(colorChosen == 'none')
+	{
+		colorChosen = color;
+		document.getElementById(color).style.border = "5px solid blue";
+	}
+	if(color != colorChosen && colorChosen != 'none')
+	{
+		document.getElementById(colorChosen).style.border = "0px solid white";
+		colorChosen = color;
+		document.getElementById(color).style.border = "5px solid blue";
+
+	}
 
 }
 
