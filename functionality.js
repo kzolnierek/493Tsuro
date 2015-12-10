@@ -20,12 +20,12 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel3';
-var userChannel = 'user_channel3';
-var cardsChannel = 'send_cards3';
-var colorChannel = 'colorChannel3';
-var blockChannel = 'block_channel3';
-var userInformationChannel = "user_info3";
+var gameChannel = 'game_channel30';
+var userChannel = 'user_channel30';
+var cardsChannel = 'send_cards30';
+var colorChannel = 'colorChannel30';
+var blockChannel = 'block_channel30';
+var userInformationChannel = "user_info30";
 
 var turnoBlanca=true;
 
@@ -71,8 +71,8 @@ function main(){
 		callback: function(message, envelope, channel){		
 			console.log(message);
 			//from submitCard
-			if(message.spot != undefined && message.card != undefined){
-				addCard(message.spot, message.card);
+			if(message.spot != undefined && message.card != undefined && message.rotation != undefined){
+				addCard(message.spot, message.card, message.rotation);
 				movePlayerPiece();
 				//THIS IS WHERE YOU WILL MOVE THE PLAYER'S PIECE (have it call a diff fn)
 				//IT WILL NEED TO CHECK IF THE INDIVIDUAL USER IS NEXT TO THE SPOT AND
@@ -516,6 +516,7 @@ function death(){
 		tiles.push(right.attr("src"));
 }
 
+
 function win(){
 	var colLen = colors.length;
 	for(var i = 2; i < colLen; i += 3){
@@ -539,6 +540,7 @@ function win(){
         error: function(e){console.log(e)}
     });
 }
+
 
 //this will return false if not or top, right, left, corner, bottom if it is
 function calculateNewNextSpot(overlaySpot){
@@ -676,15 +678,27 @@ function rotate(number){
 		angle += 90;
 		var string = '#' + number;
 		$(string).css('transform','rotate(' + angle + 'deg)');
-		rotateTilePos(num);
-		rotateTilePos(num);
+		rotateTilePos(filename);
+		rotateTilePos(filename);
 	}
 }
 
-function rotateTilePos(number){
-	var tile = parseInt(number) - 1;
-	var temp3 = allTileInfo;
-	var temp2 = allTileInfo[tile];
+function rotateTilePos(filename){
+	var length = allTileInfo.length
+	var tile = 0;
+	for(var j = 0; j < length; j++)
+	{
+		var name = allTileInfo[j][0];
+		name = (name.split('/'))[1];
+		name = (name.split('.'))[0];
+
+		if(name == filename)
+		{
+			tile = j;
+			break;
+		} 
+	}
+
 	var temp = allTileInfo[tile][8];
 	for(var i = 8; i > 1; i--)
 	{
@@ -692,6 +706,7 @@ function rotateTilePos(number){
 	}
 	allTileInfo[tile][1] = temp;
 }
+
 function readyToPlayGame(){
     piecePlacement = false;
      $("#lgPlayerPiece").remove();
@@ -755,7 +770,7 @@ function controlarFlujo(){
 function establecerEventos(){
 	console.log("establecerEventos");
 	var ficha = $(".tile");
-	ficha.draggable();
+	//ficha.draggable();
 	ficha.mousedown(downTile);
 	ficha.mouseover(overTile);
 
@@ -965,8 +980,9 @@ function selectSquare(){
 	}
 }
 
-function addCard(spot, cardin){
+function addCard(spot, cardin, rotation){
 	$("#" + spot).css('background-image', 'url(' + cardin + ')');
+	$("#" + spot).css('transform', 'rotate(' + rotation + 'deg)');
 }
 
 //test the card with this
@@ -1011,6 +1027,49 @@ function downTile(){
 
 function undoCardPlacement(){
 	console.log("undoCardPlacement");
+	var squareName = "piece" + nextSquareForTile;
+	var tr = $("#" + nextSquareForTile).css('transform');
+	var angle = 0;
+
+	if(tr != "none"){
+		var values = tr.split('(')[1];
+	    values = values.split(')')[0];
+	    values = values.split(',');
+		var a = values[0];
+		var b = values[1];
+		var c = values[2];
+		var d = values[3];
+
+		var scale = Math.sqrt(a*a + b*b);
+
+		// arc sin, convert from radians to degrees, round
+		// DO NOT USE: see update below
+		var sin = b/scale;
+		angle = Math.round(Math.asin(sin) * (180/Math.PI));
+	}
+	
+	if(angle == 90)
+	{
+		for(var i = 0; i < 6; i ++)
+		{
+			rotateTilePos(squareName);
+		}
+	}
+	else if(angle == 180)
+	{
+		for(var i = 0; i < 4; i ++)
+		{
+			rotateTilePos(squareName);
+		}	
+	}
+	else if(angle == 270)
+	{
+		for(var i = 0; i < 2; i ++)
+		{
+			rotateTilePos(squareName);
+		}	
+	}
+
 	$("#" + nextSquareForTile).css('background-image', 'url(purpleSquare.png)');
 	lastCard.css("visibility","visible");
 	$("#submitButton").css("visibility", "hidden");
@@ -1021,10 +1080,29 @@ function undoCardPlacement(){
 function submitCard(){
 	console.log("submitCard");
 	var filename = lastCard.attr('src');
+	var tr = $("#" + nextSquareForTile).css('transform');
+	var angle = 0;
+	if(tr != "none")
+	{
+		var values = tr.split('(')[1];
+	    values = values.split(')')[0];
+	    values = values.split(',');
+		var a = values[0];
+		var b = values[1];
+		var c = values[2];
+		var d = values[3];
+
+		var scale = Math.sqrt(a*a + b*b);
+
+		// arc sin, convert from radians to degrees, round
+		// DO NOT USE: see update below
+		var sin = b/scale;
+		angle = Math.round(Math.asin(sin) * (180/Math.PI));
+	}
 	//publish the change so it is updated on all player's screens
 	pubnub.publish({
 	    channel: gameChannel,        
-	    message: {spot: nextSquareForTile, card: filename},
+	    message: {spot: nextSquareForTile, card: filename, rotation: angle},
 	    callback : function(m){console.log("publishing in submit card: " + m)},
 	    error: function(e){console.log(e)}
 	});
@@ -1053,6 +1131,7 @@ function submitCard(){
 	lastCard = "none";
 }
 
+
 function dropCasillas(event,ui){
 	console.log("dropCasillas");
 	var  fic = ui.draggable;
@@ -1071,9 +1150,10 @@ function overTile(){
 
 
 
+
 function ennrrocar(habilitada,fil){
 		//Enrrocar
-			console.log("ennrrocar");
+	console.log("ennrrocar");
 	var anterior=$("#"+6+fil);
 	if(anterior.attr("value")=="vacia"){
 		habilitada=$("#"+7+fil);
