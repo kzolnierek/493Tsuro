@@ -1,7 +1,8 @@
-var userChannel = 'user_channel38'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement38';
-var userInformationChannel = "user_info38";
-var colorChannel = 'colorChannel38';
+var userChannel = 'user_channel391'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement391';
+var userInformationChannel = "user_info391";
+var colorChannel = 'colorChannel391';
+var blockChannel = 'block_channel391';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
@@ -115,12 +116,19 @@ function whenTimeExpires(){
 }
 
 function letsPlay() {
+	pubnub.publish({
+	    channel: blockChannel,        
+	    message: {gameStatus: "started"},
+	    callback : function(m){},
+	    error: function(e){console.log(e)}
+	});
     pubnub.publish({
 	    channel: userChannel,        
 	    message: {letsPlay: true},
 	    callback : function(m){},
 	    error: function(e){console.log(e)}
 	});
+
 };
 
 function resetColorSelector(){
@@ -390,5 +398,28 @@ $(document).ready(function() {
      count: 100, // 100 is the default
      reverse: false, // false is the default
  	});
+
+ 	pubnub.history({
+     channel: blockChannel,
+     callback: function(m){
+     	console.log("history");
+     	console.log(JSON.stringify(m));
+     	var newArr = m[0];
+     	var arrayLength = newArr.length;
+     	var statusFound = false;
+		for (var i = arrayLength - 1; i >= 0 && !statusFound; i--) {
+			var temp = newArr[i];
+         	if(newArr[i].gameStatus != null ){
+         		statusFound = true;
+				if(newArr[i].gameStatus == 'started')
+					alert("A game is in progress, please exit and try again later.");
+				else if(newArr[i].gameStatus =='finished')
+					break;
+			}
+		}
+	 },
+     count: 50, // 100 is the default
+     reverse: false, // false is the default
+    });
 
 });
