@@ -20,11 +20,11 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel15';
-var userChannel = 'user_channel15';
-var cardsChannel = 'send_cards15';
-var colorChannel = 'colorChannel15';
-var userInformationChannel = "user_info15";
+var gameChannel = 'game_channel26';
+var userChannel = 'user_channel26';
+var cardsChannel = 'send_cards26';
+var colorChannel = 'colorChannel26';
+var userInformationChannel = "user_info26";
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
     PUBNUB.db.set('session', uuid); 
