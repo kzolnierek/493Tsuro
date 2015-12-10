@@ -45,8 +45,8 @@ $(document).ready(main);
 //sets that brown banner thing
 function main(){
     organizarTablero();
-    $("#turnos").css("background","url(img/pergamino.png)"); //this sets up the weird banner
-    $("#turnos").css("background-repeat","no-repeat");
+    $("#turnos").css("background","url(purpleSquare.png)"); //this sets up the weird banner
+   // $("#turnos").css("background-repeat","no-repeat");
     controlarFlujo();
     setUpTileArray();
 
@@ -726,10 +726,11 @@ function downTile(){
 		alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
 	var filename = $("#" + nextSquareForTile).css('background-image');
 	filename = filename.replace(/^.*[\\\/]/, '');
+	filename = (filename.split('.'))[0];
 	//CHECK THAT IT IS THIS PLAYER'S TURN so we dont have to do removal & etc. ADD THIS AFTER IMPLEMENTING TURN FUNCTION
 	//check that there is not already a card there
 	var ficha = $(this); //this is the piece in player's hand that they selected
-	if(filename == "purpleSquare.png)" && ficha.attr('src') != undefined){
+	if(filename == "purpleSquare" && ficha.attr('src') != undefined){
 		//make sure they arent trying to place a holder square
 		filename = ficha.attr('src');
 		filename = filename.replace(/^.*[\\\/]/, '')

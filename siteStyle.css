@@ -173,18 +173,19 @@ font-size: 3em;
 }
 
 #turnos{
+
 	position: absolute;
-	width: 40.5em;
-	height:10em;
+	width: 30.5em;
+	height:6em;
 	background:#222; 
-	top:21em;
-	left: 39.4em;
+	top: 29em;
+	left: 2em;
 
 }
 #turnos p {
 	margin-left: 1.5em;
-	margin-top: 1.3em;
-	color: #3B1E00;
+	margin-top: 1em;
+	color: #FFFFFF;
 	font-family: ev;
 	font-size: 2.6em;
 
