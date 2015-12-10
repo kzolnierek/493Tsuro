@@ -1,8 +1,8 @@
-var userChannel = 'user_channel3'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement3';
-var userInformationChannel = "user_info3";
-var colorChannel = 'colorChannel3';
-var blockChannel = 'block_channel3';
+var userChannel = 'user_channel30'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement30';
+var userInformationChannel = "user_info30";
+var colorChannel = 'colorChannel30';
+var blockChannel = 'block_channel30';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
