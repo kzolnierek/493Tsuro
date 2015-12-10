@@ -55,7 +55,7 @@ function main(){
     controlarFlujo();
     setUpTileArray();
 
-    //SHUFFLE CARDS GOES HERE (dont forget to publish the array after--unless they will all shuffle the same -- and also if theyre all publishing make sure only the last one is registered for all users)
+
 
     //set up subscriptions
     pubnub.subscribe({
@@ -80,8 +80,14 @@ function main(){
 				// EX IT SHOULD UPDATE NEXT SQUARE FOR TILE
 				// ALSO CHECK FOR DEATH
 			}
+			else if(message.thedeck != undefined) {
+				var temp = message.thedeck;
+				var temp0 = allTileInfo;
+				allTileInfo = message.thedeck;
+				var temp2 = allTileInfo[0];
+			}
 			//this is for the player spot movement
-			if(message.colorPassed != undefined && message.fileN != undefined 
+			else if(message.colorPassed != undefined && message.fileN != undefined 
 				&& message.tileN != undefined && message.beginning != undefined){
 				if(message.tileN == -1 || message.fileN == -1){
 					if(message.colorPassed != colorChosen){
@@ -307,6 +313,7 @@ function main(){
 
 	timerFunction();
 
+
 } //end of main
 
 //setup turns and change turn
@@ -400,6 +407,7 @@ function setUpTileArray(){
     twent1, twent2, twent3, twent4, twent5, twent6, twent7, twent8, twent9,
     thirty, thirt1, thirt2, thirt3, thirt4, thirt5];
 
+
 }
 
 //this takes in the spot that the user is at and 
@@ -453,6 +461,33 @@ function tileIsEdgePiece(num){
 		return "left";
 	else
 		return "false";
+}
+
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, temporaryValue2, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    temporaryValue2 = tiles[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    tiles[currentIndex] = tiles[randomIndex];
+    array[randomIndex] = temporaryValue;
+    tiles[randomIndex] = temporaryValue2;
+  }
+  	pubnub.publish({
+		channel: gameChannel,        
+		message: {thedeck: array},
+		callback : function(m){},
+		error: function(e){console.log(e)}
+	});
 }
 
 //go to ajacent card
@@ -617,6 +652,8 @@ function movePlayerPiece(){
 }
 
 function dealCards(){
+
+	shuffle(allTileInfo);
 	displayHand(tiles[0], tiles[1], tiles[2]);
 	pubnub.publish({
 	    channel: cardsChannel,        
