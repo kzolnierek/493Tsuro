@@ -20,15 +20,17 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel38';
-var userChannel = 'user_channel38';
-var cardsChannel = 'send_cards38';
-var colorChannel = 'colorChannel38';
+var gameChannel = 'game_channel391';
+var userChannel = 'user_channel391';
+var cardsChannel = 'send_cards391';
+var colorChannel = 'colorChannel391';
+var blockChannel = 'block_channel391';
+var userInformationChannel = "user_info391";
 
 var turnoBlanca=true;
 
 
-var userInformationChannel = "user_info38";
+
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
     PUBNUB.db.set('session', uuid); 
@@ -50,7 +52,6 @@ $(document).ready(main);
 function main(){
     organizarTablero();
     $("#turnos").css("background","url(holder.png)"); //this sets up the weird banner
-   // $("#turnos").css("background-repeat","no-repeat");
     controlarFlujo();
     setUpTileArray();
 
@@ -80,10 +81,53 @@ function main(){
 				// ALSO CHECK FOR DEATH
 			}
 			//this is for the player spot movement
-			if(message.colorPassed != undefined && message.fileN != undefined && message.tileN != undefined && message.beginning != undefined){
-				placePersonMarker(message.colorPassed, message.fileN, message.tileN);
-				if(message.beginning == false)
-					playerTurns();
+			if(message.colorPassed != undefined && message.fileN != undefined 
+				&& message.tileN != undefined && message.beginning != undefined){
+				if(message.tileN == -1 || message.fileN == -1){
+					if(message.colorPassed != colorChosen){
+						$("#" + message.colorPassed).remove();
+						console.log(colorChosen + " has died.");
+					}
+					//get next player's turn/ check for win
+					var colLen = colors.length;
+					for(var i = 0; i < colLen; i += 3){
+						if(i > colLen) //because these loops suck
+							break;
+						var tempp = colors[i];
+						if(colors[i] == message.colorPassed){ //you found the dead one
+							var infiniteLoopProof = 0;
+							var k = i + 5; //start at next color id
+							while(infiniteLoopProof < 16 && thisPlayersTurn == colors[i + 2]){
+								var testvariable = colors[k];
+								if(colors[k] != 'none' && colors[k] != thisPlayersTurn){ //there is another player avaliable
+									thisPlayersTurn = colors[k];
+								}
+								if(k > colLen) //start at beginning of list
+									k = 2;
+								else
+									k += 3;
+								++infiniteLoopProof;
+							}
+							colors[i + 2] = 'none';
+							colors[i + 1] = true;
+							//check for a third player - if not then it is a win
+							var playersLeftCount = 0;
+							for(var j = 0; j < colLen; j++){
+								if (colors[j] == 'none')
+									playersLeftCount++;
+							}
+							if(8 - playersLeftCount <= 1)
+								win();
+
+						}
+					}
+				}
+				else{
+					placePersonMarker(message.colorPassed, message.fileN, message.tileN);
+					if(message.beginning == false)
+						playerTurns();
+				}
+
 
 			}
 		}
@@ -232,6 +276,35 @@ function main(){
 		}
 	});
 
+	//restore any previous players place settings
+	pubnub.history({
+    	 channel: blockChannel,
+     	callback: function(m){
+     	console.log("block history");
+     	console.log(JSON.stringify(m));
+     	console.log("done with block history");
+     	var newArr = m[0];
+     	var arrayLength = newArr.length;
+     	var startFound = false;
+		for (var i = arrayLength - 1; i >= 0 && !startFound; i--) {
+         	if(newArr[i].gameStatus != null ){
+         		startFound = true;
+			}
+			else if(newArr[i].colorPassed != undefined && 
+				newArr[i].fileN != undefined && newArr[i].tileN != undefined 
+				&& newArr[i].beginning != undefined){
+				//you just want the newest ones -not ones that they updated
+				var isItInGame = $("#" + newArr[i].colorPassed);
+				if(isItInGame.length <= 0)
+					placePersonMarker(newArr[i].colorPassed, newArr[i].fileN, newArr[i].tileN);
+			}
+
+		}
+	 },
+     count: 50, // 100 is the default
+     reverse: false, // false is the default
+    });
+
 	timerFunction();
 
 } //end of main
@@ -255,13 +328,15 @@ function playerTurns(){
 		else if(oldFound && colors[i] != 'none'){
 			thisPlayersTurn = colors[i];
 			set = true;
-			break;
 		}
 		if(i + 3 <= colorLen)
 			i += 3;
 		else
 			i = 2;
 		++overallCount;
+	}
+	if(oldFound && overallCount >= 16){
+		win();
 	}
 	controlarFlujo();
 	console.log(colors);
@@ -320,7 +395,7 @@ function setUpTileArray(){
     var thirt3 = ["tiles/piece33.png", 4, 7, 5, 1, 3, 8, 2, 6];
     var thirt4 = ["tiles/piece34.png", 7, 4, 5, 2, 3, 8, 1, 6];
     var thirt5 = ["tiles/piece35.png", 4, 7, 6, 1, 8, 3, 2, 5];
-    allTilesInfo = [one, two, three, four, five, six, seven, eight, nine, 
+    allTileInfo = [one, two, three, four, five, six, seven, eight, nine, 
     ten, eleven, twelve, thirtn, fourtn, fiftn, sixtn, sevntn, eightn, ninetn, twenty,
     twent1, twent2, twent3, twent4, twent5, twent6, twent7, twent8, twent9,
     thirty, thirt1, thirt2, thirt3, thirt4, thirt5];
@@ -394,9 +469,44 @@ function jumpCard(index){
 
 //WHAT SHOULD HAPPEN WHEN A USER DIES
 function death(){
-	console.log("you just died");
 	dead = true;
-	alert("youre dead");
+	alert("You just died :(");
+	nextSquareForTile = -1;
+	//remove player piece and add cards back tile pile
+	$("#" + colorChosen).remove();
+	var left = $("#left");
+	var middle = $("#middle");
+	var right = $("#right");
+	if(left.attr("src") != "holder.png")
+		tiles.push(left.attr("src"));
+	if(middle.attr("src") != "holder.png")
+		tiles.push(middle.attr("src"));
+	if(right.attr("src") != "holder.png")
+		tiles.push(right.attr("src"));
+}
+
+function win(){
+	var colLen = colors.length;
+	for(var i = 2; i < colLen; i += 3){
+		if(colors[i] != 'none'){
+			if(colors[i] == myUUID){
+				alert("Congrats! You won the game!");
+				break;
+			}
+			else{
+				alert(colors[i-2] + " won the game!");
+				break;
+			}
+			
+		}
+	}
+
+	 pubnub.publish({
+        channel: blockChannel,        
+        message: {status: "finished"},
+        callback : function(m){},
+        error: function(e){console.log(e)}
+    });
 }
 
 //this will return false if not or top, right, left, corner, bottom if it is
@@ -447,54 +557,61 @@ function followPath(index){
 	var currentOverlay = $("#" + colorChosen).attr("src");
 	currentOverlay = currentOverlay[currentOverlay.indexOf(".") - 1];
 	// var positionOnAjacentCard = sideSquare(currentOverlay);
-	var newOverlayFile = "img/" + colorChosen + allTilesInfo[index][currentOverlay] + ".png";
+	var newOverlayFile = "img/" + colorChosen + allTileInfo[index][currentOverlay] + ".png";
 	placePersonMarker(colorChosen , newOverlayFile, nextSquareForTile);
 	//update nextSquareForTile
-	calculateNewNextSpot(allTilesInfo[index][currentOverlay]);
+	calculateNewNextSpot(allTileInfo[index][currentOverlay]);
 
 }
 
 function movePlayerPiece(){
 	//do a check if you are on the ajacent card ,if you arent then jump, if you are then follow path
 	console.log("move player piece function");
-	var backgpicture = $("#" + nextSquareForTile).css('background-image');
-	backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
-	backgpicture = (backgpicture.split('"'))[0];
-	backgpicture = (backgpicture.split(')'))[0];
-	var found = false;
-	//do this stuff while there are still tiles you need to navigate across
-	while(!dead && backgpicture != "purpleSquare.png"){
-		var leng = allTilesInfo.length;
-		var tileToLookFor = $("#" + nextSquareForTile).css('background-image');
-		tileToLookFor = tileToLookFor.replace(/^.*[\\\/]/, '');
-		tileToLookFor = (tileToLookFor.split('"'))[0];
-		tileToLookFor = (tileToLookFor.split(')'))[0];
-		var test = ($("#" + colorChosen).parent());
-		var playerCurrentLocation = test.attr("id");
-		for(var i = 0; i < leng; i++){
-			var name = allTilesInfo[i][0];
-			if(allTilesInfo[i][0] == "tiles/" + tileToLookFor){
-				//if you are not on the current card then jump
-				//if there is a card in your next spot and you are not on it
-				if(nextSquareForTile != playerCurrentLocation)
-					jumpCard(i);
-				//then follow the path
-				followPath(i);
-				found = true;
-				
-				backgpicture = $("#" + nextSquareForTile).css('background-image');
-				backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
-				backgpicture = (backgpicture.split('"'))[0];
-				backgpicture = (backgpicture.split(')'))[0];
-				break;
+	if(!dead){
+		var backgpicture = $("#" + nextSquareForTile).css('background-image');
+		backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
+		backgpicture = (backgpicture.split('"'))[0];
+		backgpicture = (backgpicture.split(')'))[0];
+		var found = false;
+		//do this stuff while there are still tiles you need to navigate across
+		while(!dead && backgpicture != "purpleSquare.png"){
+			var leng = allTileInfo.length;
+			var tileToLookFor = $("#" + nextSquareForTile).css('background-image');
+			tileToLookFor = tileToLookFor.replace(/^.*[\\\/]/, '');
+			tileToLookFor = (tileToLookFor.split('"'))[0];
+			tileToLookFor = (tileToLookFor.split(')'))[0];
+			var test = ($("#" + colorChosen).parent());
+			var playerCurrentLocation = test.attr("id");
+			for(var i = 0; i < leng; i++){
+				var name = allTileInfo[i][0];
+				if(allTileInfo[i][0] == "tiles/" + tileToLookFor){
+					//if you are not on the current card then jump
+					//if there is a card in your next spot and you are not on it
+					if(nextSquareForTile != playerCurrentLocation)
+						jumpCard(i);
+					//then follow the path
+					followPath(i);
+					found = true;
+					if(dead)
+						break;
+					backgpicture = $("#" + nextSquareForTile).css('background-image');
+					backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
+					backgpicture = (backgpicture.split('"'))[0];
+					backgpicture = (backgpicture.split(')'))[0];
+					break;
+				}
 			}
 		}
-	}
-	if(found){
-		var whereAreYouNow = $("#" + colorChosen);
-		var temp = whereAreYouNow.attr("src");
-		var temp2 = whereAreYouNow.parent().attr("id");
-		publishPlayerMovement(colorChosen , whereAreYouNow.attr("src"), whereAreYouNow.parent().attr("id"), false);
+		if(found){
+			var whereAreYouNow = $("#" + colorChosen);
+			var whereSrc = whereAreYouNow.attr("src");
+			var whereLoc = whereAreYouNow.parent().attr("id");
+			if(dead){
+				whereSrc = -1;
+				whereLoc = "dead";
+			}
+			publishPlayerMovement(colorChosen , whereSrc, whereLoc, false);
+		}
 	}
 
 }
@@ -729,6 +846,8 @@ function placePersonMarker(colorIn, filename, tileNum){
 		htmlImgLine.attr("class", zaxisCss);
 		htmlImgLine.attr("id", colorIn);
 		$("#" + tileNum).append(htmlImgLine);
+		if(colorIn == colorChosen)
+			nextSquareForTile = tileNum;
 
 
 	//}
@@ -742,6 +861,16 @@ function publishPlayerMovement(col , file, tile, beginningIN){
 	    callback : function(m){console.log("publishing in subcard: " + m)},
 	    error: function(e){console.log(e)}
 	});
+	if(beginningIN){
+		console.log("publishing the spot")
+		//publishing start spots because some browser are slow at loading
+        pubnub.publish({
+            channel: blockChannel,        
+            message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
+            callback : function(m){},
+            error: function(e){console.log(e)}
+        });
+	}
 }
 function piecePlacementFn(square){	
 	//check to see if the person's piece is already on the board 
@@ -791,8 +920,15 @@ function addCard(spot, cardin){
 function downTile(){
 	console.log("downTile");
 	if(myUUID == thisPlayersTurn){
-		if(nextSquareForTile == 0)
+		if(nextSquareForTile == 0){
+			//it just wasnt registered
+			var theColorHtml = $("#" + colorChosen);
+			if($("#" + colorChosen).length > 0){
+				nextSquareForTile = theColorHtml.parent().attr("id");
+			}
+
 			alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
+		}
 		var filename = $("#" + nextSquareForTile).css('background-image');
 		filename = filename.replace(/^.*[\\\/]/, '');
 		filename = (filename.split('.'))[0];
