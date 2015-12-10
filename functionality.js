@@ -20,12 +20,12 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel391';
-var userChannel = 'user_channel391';
-var cardsChannel = 'send_cards391';
-var colorChannel = 'colorChannel391';
-var blockChannel = 'block_channel391';
-var userInformationChannel = "user_info391";
+var gameChannel = 'game_channel3';
+var userChannel = 'user_channel3';
+var cardsChannel = 'send_cards3';
+var colorChannel = 'colorChannel3';
+var blockChannel = 'block_channel3';
+var userInformationChannel = "user_info3";
 
 var turnoBlanca=true;
 
@@ -79,12 +79,6 @@ function main(){
 				//IF IT IS THEN IT WILL MOVE IT AND UPDATE ALL LOCAL RELEVANT VARS
 				// EX IT SHOULD UPDATE NEXT SQUARE FOR TILE
 				// ALSO CHECK FOR DEATH
-			}
-			else if(message.thedeck != undefined) {
-				var temp = message.thedeck;
-				var temp0 = allTileInfo;
-				allTileInfo = message.thedeck;
-				var temp2 = allTileInfo[0];
 			}
 			//this is for the player spot movement
 			else if(message.colorPassed != undefined && message.fileN != undefined 
@@ -159,6 +153,8 @@ function main(){
 				tiles.splice(0, message.replacement);
 				//console.log("after: " + tiles);
 			}
+			else if(message.thedeck != undefined) 
+				allTileInfo = message.thedeck;
 			else
 				console.log("prob with cards");
 		}
@@ -483,7 +479,7 @@ function shuffle(array) {
     tiles[randomIndex] = temporaryValue2;
   }
   	pubnub.publish({
-		channel: gameChannel,        
+		channel: cardsChannel,        
 		message: {thedeck: array},
 		callback : function(m){},
 		error: function(e){console.log(e)}
@@ -674,25 +670,27 @@ function rotate(number){
 	var filename = $("#" + number).css('background-image');
 	filename = filename.replace(/^.*[\\\/]/, '');
 	filename = (filename.split('.'))[0];
+	var num = (filename.split('e'))[2];
 
 	if(filename != "purpleSquare"){
 		angle += 90;
 		var string = '#' + number;
 		$(string).css('transform','rotate(' + angle + 'deg)');
-		rotateTilePos();
-		rotateTilePos();
+		rotateTilePos(num);
+		rotateTilePos(num);
 	}
 }
 
-function rotateTilePos(){
-	var tile = $(this);
-	
-	var temp = allTilesInfo[tile][8];
+function rotateTilePos(number){
+	var tile = parseInt(number) - 1;
+	var temp3 = allTileInfo;
+	var temp2 = allTileInfo[tile];
+	var temp = allTileInfo[tile][8];
 	for(var i = 8; i > 1; i--)
 	{
-		allTilesInfo[tile][i] = allTilesInfo[tile][i - 1];
+		allTileInfo[tile][i] = allTileInfo[tile][i - 1];
 	}
-	allTilesInfo[tile][1] = temp;
+	allTileInfo[tile][1] = temp;
 }
 function readyToPlayGame(){
     piecePlacement = false;
@@ -981,8 +979,8 @@ function downTile(){
 			if($("#" + colorChosen).length > 0){
 				nextSquareForTile = theColorHtml.parent().attr("id");
 			}
-
-			alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
+			else
+				alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
 		}
 		var filename = $("#" + nextSquareForTile).css('background-image');
 		filename = filename.replace(/^.*[\\\/]/, '');
