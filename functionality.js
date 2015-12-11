@@ -775,7 +775,11 @@ function establecerEventos(){
 	var ficha = $(".tile");
 	//ficha.draggable();
 	ficha.mousedown(downTile);
-	ficha.mouseover(overTile);
+//	ficha.mouseover(overTile);
+
+	var ficha = $(".blanca");
+	ficha.mouseover(overSquare);
+	ficha.mouseout(outOfSquare);
 
 	ficha = $(".blanca");
 	ficha.mousedown(selectSquare);
@@ -1146,6 +1150,30 @@ function overTile(){
 
 }
 
+function overSquare(){
+	console.log("overSquare");
+	var ficha = $(this);
+	if(nextSquareForTile == ficha.attr("id") 
+		&& ficha.css('background-image') != 'purpleSquare.png'){
+
+		var htmlImgLine = $(document.createElement('img'));
+		htmlImgLine.attr("src", "rotate.png");
+		var zaxisCss = "overlayRotate";
+		htmlImgLine.attr("class", zaxisCss);
+		htmlImgLine.attr("id", "rotate");
+		$("#" + ficha.attr("id")).append(htmlImgLine);
+		// if(colorIn == colorChosen)
+
+	}
+}
+
+function outOfSquare(){
+	var ficha = $(this);
+	if($("#rotate").length > 0)
+		$("#rotate").remove();
+
+	
+}
 
 
 

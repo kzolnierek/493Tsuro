@@ -45,6 +45,14 @@
 .overlay1{
 	z-index: 5;
 }
+.overlayRotate{
+	z-index: 10;
+	position: absolute;
+	width: 4em;
+	height: 4em;
+	margin-left:1em; 
+	margin-top:1em;
+}
 .blanca{
 	background-image: url("purpleSquare.png");
 
