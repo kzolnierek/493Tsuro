@@ -367,7 +367,7 @@ function setUpTileArray(){
 	var one    = ["tiles/piece1.png" , 2, 1, 4, 3, 6, 5, 8, 7];
 	var two    = ["tiles/piece2.png" , 8, 7, 4, 3, 6, 5, 2, 1];
 	var three  = ["tiles/piece3.png" , 8, 3, 2, 7, 6, 5, 4, 1];
-    var four   = ["tiles/piece4.png" , 6, 4, 8, 2, 7, 1, 5, 3];
+    var four   = ["tiles/piece4.png" , 8, 3, 2, 5, 4, 7, 6, 1];
     var five   = ["tiles/piece5.png" , 7, 8, 4, 3, 6, 5, 1, 2];
     var six    = ["tiles/piece6.png" , 2, 1, 8, 7, 6, 5, 4, 3];
     var seven  = ["tiles/piece7.png" , 2, 1, 7, 8, 6, 5, 3, 4];
