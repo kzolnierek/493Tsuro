@@ -314,7 +314,7 @@ function main(){
 	pubnub.subscribe({
 	    channel  : channel,
 		callback : function(text) { 
-			box.innerHTML = ('' + colorChosen + ": " + text).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML
+			box.innerHTML = ('' + text).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML
 		 }
 	});
 	pubnub.bind( 'keyup', input, function(e) {
@@ -402,7 +402,7 @@ function setUpTileArray(){
     var twenty = ["tiles/piece20.png", 6, 8, 4, 3, 7, 1, 5, 2];
     var twent1 = ["tiles/piece21.png", 6, 7, 8, 5, 4, 1, 2, 3];
     var twent2 = ["tiles/piece22.png", 6, 3, 2, 8, 7, 1, 5, 8];
-    var twent3 = ["tiles/piece23.png", 6, 4, 8, 3, 7, 1, 5, 3];
+    var twent3 = ["tiles/piece23.png", 6, 4, 8, 2, 7, 1, 5, 3];
     var twent4 = ["tiles/piece24.png", 6, 4, 7, 2, 8, 1, 3, 5];
     var twent5 = ["tiles/piece25.png", 5, 4, 7, 2, 1, 8, 3, 6];
     var twent6 = ["tiles/piece26.png", 3, 4, 1, 2, 7, 8, 5, 6];
@@ -506,7 +506,7 @@ function shuffle(array) {
 //go to ajacent card
 function jumpCard(index){
 	console.log("jump card!!!!!!!!!");
-	var currentOverlay = $("#" + colorChosen).attr("src");
+	var currentOverlay =  $("#" + colorChosen).attr("src");
 	currentOverlay = currentOverlay[currentOverlay.indexOf(".") - 1];
 	var positionOnAjacentCard = sideSquare(currentOverlay);
 	var newOverlayFile = "img/" + colorChosen + positionOnAjacentCard + ".png";
@@ -699,6 +699,7 @@ function rotate(number){
 		$(string).css('transform','rotate(' + angle + 'deg)');
 		rotateTilePos(filename);
 		rotateTilePos(filename);
+		$(string).children().css('transform','rotate(' + angle * -1 + 'deg)');
 	}
 }
 
@@ -1006,7 +1007,18 @@ function selectSquare(){
 
 function addCard(spot, cardin, rotation){
 	$("#" + spot).css('background-image', 'url(' + cardin + ')');
+	if($("#" + spot).css('transform') == "none"){
+		if(rotation != 0){
+			var numTimes = rotation / 90;
+			for(var i = 0; i < numTimes; i++){
+				rotateTilePos(cardin);
+				rotateTilePos(cardin);
+			}
+		}
+	}
 	$("#" + spot).css('transform', 'rotate(' + rotation + 'deg)');
+	$("#" + spot).children().css('transform','rotate(' + rotation * -1 + 'deg)');
+
 }
 
 //test the card with this
@@ -1034,7 +1046,7 @@ function downTile(){
 			filename = filename.replace(/^.*[\\\/]/, '')
 			if(filename != 'holder)'){
 				habilitada=$("#" + nextSquareForTile); 
-				addCard(nextSquareForTile, ficha.attr('src'));
+				addCard(nextSquareForTile, ficha.attr('src'), 0);
 				$("#submitButton").css("visibility", "visible");
 				$("#undoButton").css("visibility", "visible");
 				ficha.css("visibility","hidden");
@@ -1052,47 +1064,50 @@ function downTile(){
 function undoCardPlacement(){
 	console.log("undoCardPlacement");
 	var squareName = "piece" + nextSquareForTile;
-	var tr = $("#" + nextSquareForTile).css('transform');
-	var angle = 0;
+	$("#" + nextSquareForTile).css('transform', 'rotate(' + 0 + 'deg)');
+	$("#" + nextSquareForTile).children().css('transform','rotate(' + 0 + 'deg)');
+	//var angle = 0;
 
-	if(tr != "none"){
-		var values = tr.split('(')[1];
-	    values = values.split(')')[0];
-	    values = values.split(',');
-		var a = values[0];
-		var b = values[1];
-		var c = values[2];
-		var d = values[3];
-
-		var scale = Math.sqrt(a*a + b*b);
-
-		// arc sin, convert from radians to degrees, round
-		// DO NOT USE: see update below
-		var sin = b/scale;
-		angle = Math.round(Math.asin(sin) * (180/Math.PI));
-	}
 	
-	if(angle == 90)
-	{
-		for(var i = 0; i < 6; i ++)
-		{
-			rotateTilePos(squareName);
-		}
-	}
-	else if(angle == 180)
-	{
-		for(var i = 0; i < 4; i ++)
-		{
-			rotateTilePos(squareName);
-		}	
-	}
-	else if(angle == 270)
-	{
-		for(var i = 0; i < 2; i ++)
-		{
-			rotateTilePos(squareName);
-		}	
-	}
+
+	// if(tr != "none"){
+	// 	var values = tr.split('(')[1];
+	//     values = values.split(')')[0];
+	//     values = values.split(',');
+	// 	var a = values[0];
+	// 	var b = values[1];
+	// 	var c = values[2];
+	// 	var d = values[3];
+
+	// 	var scale = Math.sqrt(a*a + b*b);
+
+	// 	// arc sin, convert from radians to degrees, round
+	// 	// DO NOT USE: see update below
+	// 	var sin = b/scale;
+	// 	angle = Math.round(Math.asin(sin) * (180/Math.PI));
+	// }
+	
+	// if(angle == 90)
+	// {
+	// 	for(var i = 0; i < 6; i ++)
+	// 	{
+	// 		rotateTilePos(squareName);
+	// 	}
+	// }
+	// else if(angle == 180)
+	// {
+	// 	for(var i = 0; i < 4; i ++)
+	// 	{
+	// 		rotateTilePos(squareName);
+	// 	}	
+	// }
+	// else if(angle == 270)
+	// {
+	// 	for(var i = 0; i < 2; i ++)
+	// 	{
+	// 		rotateTilePos(squareName);
+	// 	}	
+	// }
 
 	$("#" + nextSquareForTile).css('background-image', 'url(purpleSquare.png)');
 	lastCard.css("visibility","visible");
