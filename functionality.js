@@ -1153,8 +1153,11 @@ function overTile(){
 function overSquare(){
 	console.log("overSquare");
 	var ficha = $(this);
+	var filename = ficha.css('background-image');
+	filename = filename.replace(/^.*[\\\/]/, '');
+	filename = (filename.split('.'))[0];
 	if(nextSquareForTile == ficha.attr("id") 
-		&& ficha.css('background-image') != 'purpleSquare.png'){
+		&& filename != "purpleSquare"){
 
 		var htmlImgLine = $(document.createElement('img'));
 		htmlImgLine.attr("src", "rotate.png");
