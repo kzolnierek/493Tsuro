@@ -75,13 +75,13 @@
 
 .ficha{
 	position: absolute;
-	width: 4em;
-	height: 7em;
-	margin-left:0.6em; 
+	width: 85px;
+	height: 85px;
+
 
 	z-index: 100;
     cursor:pointer;
-    margin-left: 1em;
+
     
 }
 
