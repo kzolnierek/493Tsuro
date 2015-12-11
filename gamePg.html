@@ -47,9 +47,7 @@
     </div>
 
   <div id="tablero" >
-    <div id="1" class="blanca" value="vacia" onclick="rotate(1)"> 
-      <!-- <img src='img/torreN.png' class='ficha torre fNegra torreN'> -->
-    </div>
+    <div id="1" class="blanca" value="vacia" onclick="rotate(1)"></div>
     <div id="2" class="blanca" value="vacia" onclick="rotate(2)"></div>
     <div id="3" class="blanca" value="vacia" onclick="rotate(3)"></div>
     <div id="4" class="blanca"  value="vacia" onclick="rotate(4)"> </div>
@@ -80,7 +78,7 @@
     <div id="23" class="blanca" value="vacia" onclick="rotate(23)"> </div>
     <div id="24" class="blanca"  value="vacia" onclick="rotate(24)"> </div>
 
-      <br />
+    <br />
     <div id="25" class="blanca"  value="vacia" onclick="rotate(25)"> </div>
     <div id="26" class="blanca" value="vacia" onclick="rotate(26)"> </div>
     <div id="27" class="blanca"  value="vacia" onclick="rotate(27)"> </div>
@@ -99,14 +97,13 @@
   </div>
   
   <div id="chatbar">
-    Enter Chat and press enter <br/>
-<!--    <div class="btn-group btn-toggle"> 
-        <button class="btn btn-xs btn-default">ON</button>
-        <button class="btn btn-xs btn-primary active">OFF</button>
-    </div> -->
-    <div><input id=input placeholder=you-chat-here /></div>
-    Chat Output
-    <div id=box class="chatOutput"></div>
+    <p style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 100%; text-align: center;'>Enter Chat and press enter</p>
+    <div style='padding: 5px;'>
+      <input id="input" placeholder="you-chat-here">
+    </div>
+      <p style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 100%; padding: 5px;'>Chat Output
+      </p>
+    <div id="box" class="chatOutput"></div>
   </div>
   
   <div id="turnos">

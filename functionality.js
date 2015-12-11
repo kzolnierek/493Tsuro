@@ -20,12 +20,12 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel300';
-var userChannel = 'user_channel300';
-var cardsChannel = 'send_cards300';
-var colorChannel = 'colorChannel300';
-var blockChannel = 'block_channel300';
-var userInformationChannel = "user_info300";
+var gameChannel = 'game_channel303';
+var userChannel = 'user_channel303';
+var cardsChannel = 'send_cards303';
+var colorChannel = 'colorChannel303';
+var blockChannel = 'block_channel303';
+var userInformationChannel = "user_info303";
 
 var turnoBlanca=true;
 
@@ -786,11 +786,11 @@ function controlarFlujo(){
 			var temp = colors[i];
 			var temp2 = colors[i + 2];
 			if(colors[i + 2] == myUUID && myUUID == thisPlayersTurn){
-				stringofwords = "You are up now."
+				stringofwords = "<span style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 180%;'>You are up now</span>";
 				break;
 			}
 			else if(colors[i + 2] == thisPlayersTurn){
-				stringofwords = colors[i] + " is up now.";
+				stringofwords = colors[i] + "<span style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 180%;'> is up now</span>";
 				break;
 			}
 		}
