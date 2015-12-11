@@ -698,7 +698,6 @@ function rotate(number){
 		var string = '#' + number;
 		$(string).css('transform','rotate(' + angle + 'deg)');
 		rotateTilePos(filename);
-		rotateTilePos(filename);
 		$(string).children().css('transform','rotate(' + angle * -1 + 'deg)');
 	}
 }
@@ -718,13 +717,29 @@ function rotateTilePos(filename){
 			break;
 		} 
 	}
-
+	//shift twice
 	var temp = allTileInfo[tile][8];
 	for(var i = 8; i > 1; i--)
 	{
 		allTileInfo[tile][i] = allTileInfo[tile][i - 1];
 	}
 	allTileInfo[tile][1] = temp;
+
+	temp = allTileInfo[tile][8];
+	for(var i = 8; i > 1; i--)
+	{
+		allTileInfo[tile][i] = allTileInfo[tile][i - 1];
+	}
+	allTileInfo[tile][1] = temp;
+
+	//add two
+	for(var i = 1; i < 9; i++){
+		allTileInfo[tile][i] += 2;
+		if(allTileInfo[tile][i] == 9)
+			allTileInfo[tile][i] = 1;
+		else if(allTileInfo[tile][i] ==10)
+			allTileInfo[tile][i] = 2;
+	}
 }
 
 function readyToPlayGame(){
@@ -1011,7 +1026,6 @@ function addCard(spot, cardin, rotation){
 		if(rotation != 0){
 			var numTimes = rotation / 90;
 			for(var i = 0; i < numTimes; i++){
-				rotateTilePos(cardin);
 				rotateTilePos(cardin);
 			}
 		}
