@@ -190,6 +190,23 @@ font-size: 3em;
 	left: 2em;
 
 }
+#chatbar{
+	top: 27em;
+	left:70em;
+
+	position: absolute;
+	align: right;
+	background:#D3D3D3;
+	width: 20em;
+
+
+
+}
+.chatOutput{
+	overflow-y: scroll;
+	height:10em;
+}
+
 #turnos p {
 	margin-left: 1em;
 	margin-top: .5em;

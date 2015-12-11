@@ -307,6 +307,22 @@ function main(){
      count: 50, // 100 is the default
      reverse: false, // false is the default
     });
+//////////////////////////////////////
+
+	var box = pubnub.$('box'), input = pubnub.$('input'), channel = 'chat';
+
+	pubnub.subscribe({
+	    channel  : channel,
+		callback : function(text) { 
+			box.innerHTML = ('' + colorChosen + ": " + text).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML
+		 }
+	});
+	pubnub.bind( 'keyup', input, function(e) {
+		(e.keyCode || e.charCode) === 13 && pubnub.publish({
+		 	channel : channel, message : input.value, x : (input.value='')
+		 })
+	});
+/////////////////////////////////////
 
 	timerFunction();
 
