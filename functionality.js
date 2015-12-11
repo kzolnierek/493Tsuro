@@ -20,12 +20,12 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel30';
-var userChannel = 'user_channel30';
-var cardsChannel = 'send_cards30';
-var colorChannel = 'colorChannel30';
-var blockChannel = 'block_channel30';
-var userInformationChannel = "user_info30";
+var gameChannel = 'game_channel300';
+var userChannel = 'user_channel300';
+var cardsChannel = 'send_cards300';
+var colorChannel = 'colorChannel300';
+var blockChannel = 'block_channel300';
+var userInformationChannel = "user_info300";
 
 var turnoBlanca=true;
 
@@ -70,6 +70,7 @@ function main(){
 		disconnect: function(){console.log("disconnected")},
 		callback: function(message, envelope, channel){		
 			console.log(message);
+			var tempVar = nextSquareForTile;
 			//from submitCard
 			if(message.spot != undefined && message.card != undefined && message.rotation != undefined){
 				addCard(message.spot, message.card, message.rotation);
@@ -598,9 +599,10 @@ function followPath(index){
 }
 
 function movePlayerPiece(){
-	//do a check if you are on the ajacent card ,if you arent then jump, if you are then follow path
-	console.log("move player piece function");
 	if(!dead){
+		//this is just for beginning probs(when the start spot isnt refreshed)
+		if(nextSquareForTile < 1)
+			nextSquareForTile =  $("#" + colorChosen).parent().attr("id");
 		var backgpicture = $("#" + nextSquareForTile).css('background-image');
 		backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
 		backgpicture = (backgpicture.split('"'))[0];
@@ -639,6 +641,7 @@ function movePlayerPiece(){
 			var whereAreYouNow = $("#" + colorChosen);
 			var whereSrc = whereAreYouNow.attr("src");
 			var whereLoc = whereAreYouNow.parent().attr("id");
+			var tempVar = nextSquareForTile;
 			if(dead){
 				whereSrc = -1;
 				whereLoc = "dead";
@@ -729,7 +732,7 @@ function timerFunction(){
 
 function organizarTablero(){
 	//casillas = boxes
-	var casillas=$(".blanca,.negra").droppable({drop:dropCasillas}); //makes boxes droppable
+	//var casillas=$(".blanca,.negra").droppable({drop:dropCasillas}); //makes boxes droppable
 	establecerEventos();
 }
 
@@ -914,14 +917,15 @@ function placePersonMarker(colorIn, filename, tileNum){
 		htmlImgLine.attr("class", zaxisCss);
 		htmlImgLine.attr("id", colorIn);
 		$("#" + tileNum).append(htmlImgLine);
-		if(colorIn == colorChosen)
-			nextSquareForTile = tileNum;
+		// if(colorIn == colorChosen)
+		// 	nextSquareForTile = tileNum;
 
 
 	//}
 }
 
 function publishPlayerMovement(col , file, tile, beginningIN){
+	var tempVar = nextSquareForTile;
 	console.log("publish player start movement " + col + " " + file + " " + tile);
 	pubnub.publish({
 	    channel: gameChannel,        
@@ -1132,19 +1136,13 @@ function submitCard(){
 }
 
 
-function dropCasillas(event,ui){
-	console.log("dropCasillas");
-	var  fic = ui.draggable;
-	fic.css("position","absolute");
-	fic.css("left","0");
-	fic.css("top","0");
-}
 
+//THIS WOULD BE GOOD FOR THE ROTATION TO HAVE AN ARROW ABOVE THEM
 
 function overTile(){
 	console.log("overtile");
-	var ficha = $(this);
-	ficha.draggable();
+	// var ficha = $(this);
+	// ficha.draggable();
 
 }
 
