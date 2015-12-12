@@ -73,32 +73,29 @@
 
 }
 
+.bluetile{
+	position: absolute;
+	width: 85px;
+	height: 85px;
+	z-index: 0;
+    cursor:pointer;
+}
+
 .ficha{
 	position: absolute;
 	width: 85px;
 	height: 85px;
-
-
 	z-index: 100;
     cursor:pointer;
-
-    
 }
 
 .tile{
 	cursor:pointer;
 	width:85px;
 	height:85px;
-	margin-left:15px; 
+
 }
-#matadas{
-	position: relative;
-	width: 20em;
-	max-width: 20em;
-	height: 20em;
-	border: 1px solid black;
-	box-shadow: 2px 2px 4px #000;
-}
+
 #info{
 	position: relative;
 	width: 20em;
@@ -113,7 +110,7 @@
 
 }
 #info span{
-font-size: 3em;
+	font-size: 3em;
 }
 #info img{
 	margin-top:1.4em;
@@ -121,45 +118,6 @@ font-size: 3em;
 #tablero,#matadas,#info{
 	display: inline-block;
 	vertical-align: top;
-}
-#matadas img{
-	
-	width: 2.5em;
-	height: 3.5em;
-}
-#coronadaB,#coronadaN{
-	position: absolute;
-	left:10em;
-	top: 0;
-	width: 16em;
-	height: 5em;
-	box-shadow: 2px 2px 5px #000;
-	background: #333;
-	display: none;
-	z-index: 2000;
-	border: 3px solid #000;
-
-}
-#coronadaN{
-	top:32.5em;
-	background: #DDD;
-}
-
-#coronadaB img,#coronadaN img{
-	position: relative;
-	display: inline;
-	margin-left: 1em;
-	margin-top: .5em;
-	cursor: pointer;
-}
-
-#coronadaB .torre,#coronadaN .torre{
-	position: absolute;
-	left: 1em;
-}
-#coronadaB .caballo,#coronadaN .caballo{
-	position: absolute;
-	left: 4em;
 }
 #coronadaB .alfil,#coronadaN .alfil{
 	position: absolute;
@@ -172,17 +130,12 @@ font-size: 3em;
 
 
 
-#coronadaB img:hover,#coronadaN img:hover{
-	opacity: 0.7;
-
-}
-
 #turnos{
 
 	position: absolute;
 	width: 30.5em;
 	height:6em;
-	background:#222; 
+	background:#fff; 
 	top: 29em;
 	left: 2em;
 

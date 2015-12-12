@@ -20,15 +20,14 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel303';
-var userChannel = 'user_channel303';
-var cardsChannel = 'send_cards303';
-var colorChannel = 'colorChannel303';
-var blockChannel = 'block_channel303';
-var userInformationChannel = "user_info303";
+var gameChannel = 'game_channel3033';
+var userChannel = 'user_channel3033';
+var cardsChannel = 'send_cards3033';
+var colorChannel = 'colorChannel3033';
+var blockChannel = 'block_channel3033';
+var userInformationChannel = "user_info3033";
 
 var turnoBlanca=true;
-
 
 
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
@@ -51,18 +50,14 @@ $(document).ready(main);
 //sets that brown banner thing
 function main(){
     organizarTablero();
-    $("#turnos").css("background","url(holder.png)"); //this sets up the weird banner
     controlarFlujo();
     setUpTileArray();
-
-
 
     //set up subscriptions
     pubnub.subscribe({
 		channel: gameChannel,
 		message: function(m){console.log("I'm listening:" + m)},
 		error: function (error) {
-		// Handle error here
 			console.log("error occured");
 			console.log(JSON.stringify(error));
 		},
@@ -73,13 +68,8 @@ function main(){
 			var tempVar = nextSquareForTile;
 			//from submitCard
 			if(message.spot != undefined && message.card != undefined && message.rotation != undefined){
-				addCard(message.spot, message.card, message.rotation);
+				addCard(message.spot, message.card, message.rotation, false);
 				movePlayerPiece();
-				//THIS IS WHERE YOU WILL MOVE THE PLAYER'S PIECE (have it call a diff fn)
-				//IT WILL NEED TO CHECK IF THE INDIVIDUAL USER IS NEXT TO THE SPOT AND
-				//IF IT IS THEN IT WILL MOVE IT AND UPDATE ALL LOCAL RELEVANT VARS
-				// EX IT SHOULD UPDATE NEXT SQUARE FOR TILE
-				// ALSO CHECK FOR DEATH
 			}
 			//this is for the player spot movement
 			else if(message.colorPassed != undefined && message.fileN != undefined 
@@ -119,7 +109,6 @@ function main(){
 							}
 							if(8 - playersLeftCount <= 1)
 								win();
-
 						}
 					}
 				}
@@ -128,8 +117,6 @@ function main(){
 					if(message.beginning == false)
 						playerTurns();
 				}
-
-
 			}
 		}
 	});
@@ -146,14 +133,10 @@ function main(){
 		connect: function(){console.log("connected")},
 		disconnect: function(){console.log("disconnected")},
 		callback: function(message, envelope, channel){
-
 			//just add another tile
-			if(message.replacement != undefined && tiles.length >= message.replacement){
-				//console.log("removing " + message.replacement + "cards from the deck");
-				//console.log("before: " + tiles);
+			if(message.replacement != undefined 
+			  && tiles.length >= message.replacement)
 				tiles.splice(0, message.replacement);
-				//console.log("after: " + tiles);
-			}
 			else if(message.thedeck != undefined) 
 				allTileInfo = message.thedeck;
 			else
@@ -179,6 +162,7 @@ function main(){
             }
         }
     });
+
     //get color array from first pg
     pubnub.history({
 	     channel: colorChannel,
@@ -214,7 +198,6 @@ function main(){
                 console.log("the player selected: " + colorChosen);
                 if($("#lgPlayerPiece").length > 0)
                     $("#lgPlayerPiece").attr("src", 'personMarkers/'+ colorChosen + '.png');
-                
             }
         }
         if(!found){
@@ -251,12 +234,6 @@ function main(){
 		disconnect: function(){console.log("disconnected")},
 		callback: function(message, envelope, channel){
 			console.log(message);
-			// if(message.entryNumber != null && message.entryName != null && message.personColor != null 
-			// 	&& message.entryName != 'none' && message.personColor != 'none'){
-			// 	addName(message.entryNumber, message.entryName);
-			// 	if( document.getElementById(message.personColor) != null && message.entryNumber != myUUID)
-			// 		document.getElementById(message.personColor).style.visibility = 'hidden';
-			
 			if (message.toRemove != null){
 				//THIS COULD EVENTUALLY ALSO REMOVE THEIR COLOR PIECE AND NOTIFY THE OTHER PLAYERS IF SOMEONE JUST EXITS
                 var lenOfCol = colors.length;
@@ -307,7 +284,8 @@ function main(){
      count: 50, // 100 is the default
      reverse: false, // false is the default
     });
-//////////////////////////////////////
+
+	/////////////chat stuff/////////////////////////
 
 	var box = pubnub.$('box'), input = pubnub.$('input'), channel = 'chat';
 
@@ -322,7 +300,7 @@ function main(){
 		 	channel : channel, message : input.value, x : (input.value='')
 		 })
 	});
-/////////////////////////////////////
+	/////////////////////////////////////
 
 	timerFunction();
 
@@ -355,9 +333,8 @@ function playerTurns(){
 			i = 2;
 		++overallCount;
 	}
-	if(oldFound && overallCount >= 16){
+	if(oldFound && overallCount >= 16)
 		win();
-	}
 	controlarFlujo();
 	console.log(colors);
 	console.log("up next: " + thisPlayersTurn);
@@ -419,8 +396,6 @@ function setUpTileArray(){
     ten, eleven, twelve, thirtn, fourtn, fiftn, sixtn, sevntn, eightn, ninetn, twenty,
     twent1, twent2, twent3, twent4, twent5, twent6, twent7, twent8, twent9,
     thirty, thirt1, thirt2, thirt3, thirt4, thirt5];
-
-
 }
 
 //this takes in the spot that the user is at and 
@@ -475,7 +450,6 @@ function tileIsEdgePiece(num){
 	else
 		return "false";
 }
-
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, temporaryValue2, randomIndex ;
@@ -533,7 +507,6 @@ function death(){
 		tiles.push(right.attr("src"));
 }
 
-
 function win(){
 	var colLen = colors.length;
 	for(var i = 2; i < colLen; i += 3){
@@ -545,11 +518,9 @@ function win(){
 			else{
 				alert(colors[i-2] + " won the game!");
 				break;
-			}
-			
+			}	
 		}
 	}
-
 	 pubnub.publish({
         channel: blockChannel,        
         message: {gameStatus: "finished"},
@@ -603,7 +574,7 @@ function calculateNewNextSpot(overlaySpot){
 
 //follow the card on the path
 function followPath(index){
-	console.log("follow path");
+//	console.log("follow path");
 	var currentOverlay = $("#" + colorChosen).attr("src");
 	currentOverlay = currentOverlay[currentOverlay.indexOf(".") - 1];
 	// var positionOnAjacentCard = sideSquare(currentOverlay);
@@ -611,31 +582,28 @@ function followPath(index){
 	placePersonMarker(colorChosen , newOverlayFile, nextSquareForTile);
 	//update nextSquareForTile
 	calculateNewNextSpot(allTileInfo[index][currentOverlay]);
-
 }
 
 function movePlayerPiece(){
+	var temp = allTileInfo;
 	if(!dead){
 		//this is just for beginning probs(when the start spot isnt refreshed)
 		if(nextSquareForTile < 1)
 			nextSquareForTile =  $("#" + colorChosen).parent().attr("id");
-		var backgpicture = $("#" + nextSquareForTile).css('background-image');
-		backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
-		backgpicture = (backgpicture.split('"'))[0];
-		backgpicture = (backgpicture.split(')'))[0];
+		var backgpicture = $("#" + nextSquareForTile).children(".bluetile").attr("src");
 		var found = false;
 		//do this stuff while there are still tiles you need to navigate across
-		while(!dead && backgpicture != "purpleSquare.png"){
+		while(!dead && backgpicture != undefined){
 			var leng = allTileInfo.length;
-			var tileToLookFor = $("#" + nextSquareForTile).css('background-image');
-			tileToLookFor = tileToLookFor.replace(/^.*[\\\/]/, '');
-			tileToLookFor = (tileToLookFor.split('"'))[0];
-			tileToLookFor = (tileToLookFor.split(')'))[0];
-			var test = ($("#" + colorChosen).parent());
-			var playerCurrentLocation = test.attr("id");
+			//var tileToLookFor = backgpicture;
+			//tileToLookFor = tileToLookFor.replace(/^.*[\\\/]/, '');
+			// tileToLookFor = (tileToLookFor.split('"'))[0];
+			// tileToLookFor = (tileToLookFor.split(')'))[0];
+			var parent = ($("#" + colorChosen).parent());
+			var playerCurrentLocation = parent.attr("id");
 			for(var i = 0; i < leng; i++){
 				var name = allTileInfo[i][0];
-				if(allTileInfo[i][0] == "tiles/" + tileToLookFor){
+				if(allTileInfo[i][0] == backgpicture){
 					//if you are not on the current card then jump
 					//if there is a card in your next spot and you are not on it
 					if(nextSquareForTile != playerCurrentLocation)
@@ -645,10 +613,7 @@ function movePlayerPiece(){
 					found = true;
 					if(dead)
 						break;
-					backgpicture = $("#" + nextSquareForTile).css('background-image');
-					backgpicture = backgpicture.replace(/^.*[\\\/]/, '');
-					backgpicture = (backgpicture.split('"'))[0];
-					backgpicture = (backgpicture.split(')'))[0];
+					backgpicture = $("#" + nextSquareForTile).children(".bluetile").attr("src");
 					break;
 				}
 			}
@@ -669,7 +634,6 @@ function movePlayerPiece(){
 }
 
 function dealCards(){
-
 	shuffle(allTileInfo);
 	displayHand(tiles[0], tiles[1], tiles[2]);
 	pubnub.publish({
@@ -678,7 +642,6 @@ function dealCards(){
 	    callback : function(m){ console.log("just publishing delt cards")},
 	    error: function(e){console.log("ERROR: " + e)}
 	});
-
 }
 
 function displayHand(left, middle, right){
@@ -687,50 +650,26 @@ function displayHand(left, middle, right){
 	document.getElementById('right').src = right;
 }
 
-function rotate(number){
-	var filename = $("#" + number).css('background-image');
-	filename = filename.replace(/^.*[\\\/]/, '');
-	filename = (filename.split('.'))[0];
-	var num = (filename.split('e'))[2];
 
-	if(filename != "purpleSquare"){
-		angle += 90;
-		var string = '#' + number;
-		$(string).css('transform','rotate(' + angle + 'deg)');
-		rotateTilePos(filename);
-		$(string).children().css('transform','rotate(' + angle * -1 + 'deg)');
-	}
-}
 
 function rotateTilePos(filename){
 	var length = allTileInfo.length
 	var tile = 0;
 	for(var j = 0; j < length; j++)
 	{
-		var name = allTileInfo[j][0];
-		name = (name.split('/'))[1];
-		name = (name.split('.'))[0];
-
-		if(name == filename)
+		if(allTileInfo[j][0] == filename)
 		{
 			tile = j;
 			break;
 		} 
 	}
 	//shift twice
-	var temp = allTileInfo[tile][8];
-	for(var i = 8; i > 1; i--)
-	{
-		allTileInfo[tile][i] = allTileInfo[tile][i - 1];
+	for(var k = 0; k < 2; k++){
+		var temp = allTileInfo[tile][8];
+		for(var i = 8; i > 1; i--)
+			allTileInfo[tile][i] = allTileInfo[tile][i - 1];
+		allTileInfo[tile][1] = temp;
 	}
-	allTileInfo[tile][1] = temp;
-
-	temp = allTileInfo[tile][8];
-	for(var i = 8; i > 1; i--)
-	{
-		allTileInfo[tile][i] = allTileInfo[tile][i - 1];
-	}
-	allTileInfo[tile][1] = temp;
 
 	//add two
 	for(var i = 1; i < 9; i++){
@@ -746,21 +685,13 @@ function readyToPlayGame(){
     piecePlacement = false;
      $("#lgPlayerPiece").remove();
     playerTurns();
-    dealCards();
-
-   
+    dealCards(); 
 }
 
 function timerFunction(){
     setTimeout(readyToPlayGame, 10000); //10 s for testing, but 30 sec for real
     console.log("timer has started");
 }
-
-//------------------------------------------------------------------------------------------------------------------
-//-----este parte esta una mezcla de funciones espanoles y funciones en ingles que trabajan con los espanoles ------
-//---------------------cuando tengo tiempo al fin, voy a cambiarlos, pero para ahora estan bien---------------------
-//------------si quieres hacerlo, cuidado porque parece muy complicado y da errores cuando se quitarlos-------------
-//------------------------------------------------------------------------------------------------------------------
 
 function organizarTablero(){
 	//casillas = boxes
@@ -794,46 +725,39 @@ function controlarFlujo(){
 				break;
 			}
 		}
-		
 	 	$("#turnos p").fadeOut("fast",function(){$("#turnos p").html(stringofwords);
 		$("#turnos p").fadeIn("slow");
 	 	});
-	
 	}
 }
 
 function establecerEventos(){
-	console.log("establecerEventos");
 	var ficha = $(".tile");
-	//ficha.draggable();
 	ficha.mousedown(downTile);
-//	ficha.mouseover(overTile);
 
-	var ficha = $(".blanca");
-	ficha.mouseover(overSquare);
-	ficha.mouseout(outOfSquare);
-
-	ficha = $(".blanca");
-	ficha.mousedown(selectSquare);
+	var ficha1 = $(".blanca");
+	// ficha1.mouseover(overSquare);
+	// ficha1.mouseout(outOfSquare);
+	//ficha1.mousedown(selectSquare);
+	ficha1.mousedown(rotate);
 
 }
-
-function downFicha(){
-	console.log("downFicha");
-	$(".ficha").css("z-index","100");
-	$(this).css("z-index","1000");
-
-}
-
-
 
 function edgeOrCorner(num){
-	if (num == 1 ||num == 6 || num == 31 || num == 36){
+	if (num == 1 ||num == 6 || num == 31 || num == 36)
 		return "corner";
-	}
 	else if (num < 6 || num > 31 ||
-			 num % 6 == 0 ||(num - 1) % 6 == 0){
+			 num % 6 == 0 ||(num - 1) % 6 == 0)
 		return "edge";
+}
+
+function rotate(){
+	var number = $(this).attr("id");
+	var filename = $("#" + number).children(".bluetile").attr("src");
+	if(filename != undefined){
+		angle += 90;
+		var string = '#' + number;
+		$(string).children(".bluetile").css('transform','rotate(' + angle + 'deg)');
 	}
 }
 
@@ -942,22 +866,15 @@ function getPersonStartFileName(num, alreadySetVal){
 
 //pass in the color, filename, and tile number
 function placePersonMarker(colorIn, filename, tileNum){
-	console.log("placePersonMarker");
-	// if(colorIn != colorChosen){
-		if($("#" + colorIn).length > 0) //if old pic remove it
-			$("#" + colorIn).remove();
-		var htmlImgLine = $(document.createElement('img'));
-		htmlImgLine.attr("src", filename);
-		var overlayNum = filename[filename.indexOf(".") - 1];
-		var zaxisCss = "ficha " + "overlay" + overlayNum;
-		htmlImgLine.attr("class", zaxisCss);
-		htmlImgLine.attr("id", colorIn);
-		$("#" + tileNum).append(htmlImgLine);
-		// if(colorIn == colorChosen)
-		// 	nextSquareForTile = tileNum;
-
-
-	//}
+	if($("#" + colorIn).length > 0) //if old pic remove it
+		$("#" + colorIn).remove();
+	var htmlImgLine = $(document.createElement('img'));
+	htmlImgLine.attr("src", filename);
+	var overlayNum = filename[filename.indexOf(".") - 1];
+	var zaxisCss = "ficha " + "overlay" + overlayNum;
+	htmlImgLine.attr("class", zaxisCss);
+	htmlImgLine.attr("id", colorIn);
+	$("#" + tileNum).append(htmlImgLine);
 }
 
 function publishPlayerMovement(col , file, tile, beginningIN){
@@ -980,6 +897,7 @@ function publishPlayerMovement(col , file, tile, beginningIN){
         });
 	}
 }
+
 function piecePlacementFn(square){	
 	//check to see if the person's piece is already on the board 
 	if($("#" + colorChosen).length > 0){
@@ -1011,33 +929,31 @@ function piecePlacementFn(square){
 	}
 }
 
-function selectSquare(){
-	var square = $(this);
-	if(piecePlacement == true){
-		piecePlacementFn(square);
-		nextSquareForTile = square.attr("id");
-		console.log("next square for tile = " + nextSquareForTile);
-	}
-}
-
-function addCard(spot, cardin, rotation){
-	$("#" + spot).css('background-image', 'url(' + cardin + ')');
-	if($("#" + spot).css('transform') == "none"){
+function addCard(spot, cardin, rotation, local){
+	var temp = allTileInfo;
+	var temp2 = $("#" + spot).children(".bluetile").attr("src");
+	if($("#" + spot).children(".bluetile").length <= 0){
+		var htmlImgLine = $(document.createElement('img'));
+		htmlImgLine.attr("src", cardin);
+		var zaxisCss = "bluetile";
+		htmlImgLine.attr("class", zaxisCss);
 		if(rotation != 0){
-			var numTimes = rotation / 90;
+			htmlImgLine.css('transform', 'rotate(' + rotation + 'deg)');
+		}
+		$("#" + spot).append(htmlImgLine);
+	}
+	if(!local){
+		if(rotation != 0){
+			var numTimes = Math.abs(rotation) / 90;
 			for(var i = 0; i < numTimes; i++){
 				rotateTilePos(cardin);
 			}
 		}
-	}
-	$("#" + spot).css('transform', 'rotate(' + rotation + 'deg)');
-	$("#" + spot).children().css('transform','rotate(' + rotation * -1 + 'deg)');
-
+	}	
 }
 
 //test the card with this
 function downTile(){
-	console.log("downTile");
 	if(myUUID == thisPlayersTurn){
 		if(nextSquareForTile == 0){
 			//it just wasnt registered
@@ -1048,19 +964,19 @@ function downTile(){
 			else
 				alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
 		}
-		var filename = $("#" + nextSquareForTile).css('background-image');
-		filename = filename.replace(/^.*[\\\/]/, '');
-		filename = (filename.split('.'))[0];
-		//CHECK THAT IT IS THIS PLAYER'S TURN so we dont have to do removal & etc. ADD THIS AFTER IMPLEMENTING TURN FUNCTION
+		// var filename = $("#" + nextSquareForTile).children(".bluetile");
+		// filename = filename.replace(/^.*[\\\/]/, '');
+		// filename = (filename.split('.'))[0];
 		//check that there is not already a card there
 		var ficha = $(this); //this is the piece in player's hand that they selected
-		if(filename == "purpleSquare" && ficha.attr('src') != undefined){
+		var childTile = $("#" + nextSquareForTile).children(".tile");
+		if(childTile.length <= 0){
 			//make sure they arent trying to place a holder square
-			filename = ficha.attr('src');
+			var filename = ficha.attr('src');
 			filename = filename.replace(/^.*[\\\/]/, '')
 			if(filename != 'holder)'){
 				habilitada=$("#" + nextSquareForTile); 
-				addCard(nextSquareForTile, ficha.attr('src'), 0);
+				addCard(nextSquareForTile, ficha.attr('src'), 0, true);
 				$("#submitButton").css("visibility", "visible");
 				$("#undoButton").css("visibility", "visible");
 				ficha.css("visibility","hidden");
@@ -1076,54 +992,11 @@ function downTile(){
 
 
 function undoCardPlacement(){
-	console.log("undoCardPlacement");
 	var squareName = "piece" + nextSquareForTile;
 	$("#" + nextSquareForTile).css('transform', 'rotate(' + 0 + 'deg)');
 	$("#" + nextSquareForTile).children().css('transform','rotate(' + 0 + 'deg)');
-	//var angle = 0;
 
-	
-
-	// if(tr != "none"){
-	// 	var values = tr.split('(')[1];
-	//     values = values.split(')')[0];
-	//     values = values.split(',');
-	// 	var a = values[0];
-	// 	var b = values[1];
-	// 	var c = values[2];
-	// 	var d = values[3];
-
-	// 	var scale = Math.sqrt(a*a + b*b);
-
-	// 	// arc sin, convert from radians to degrees, round
-	// 	// DO NOT USE: see update below
-	// 	var sin = b/scale;
-	// 	angle = Math.round(Math.asin(sin) * (180/Math.PI));
-	// }
-	
-	// if(angle == 90)
-	// {
-	// 	for(var i = 0; i < 6; i ++)
-	// 	{
-	// 		rotateTilePos(squareName);
-	// 	}
-	// }
-	// else if(angle == 180)
-	// {
-	// 	for(var i = 0; i < 4; i ++)
-	// 	{
-	// 		rotateTilePos(squareName);
-	// 	}	
-	// }
-	// else if(angle == 270)
-	// {
-	// 	for(var i = 0; i < 2; i ++)
-	// 	{
-	// 		rotateTilePos(squareName);
-	// 	}	
-	// }
-
-	$("#" + nextSquareForTile).css('background-image', 'url(purpleSquare.png)');
+	$("#" + nextSquareForTile).children(".bluetile").remove();
 	lastCard.css("visibility","visible");
 	$("#submitButton").css("visibility", "hidden");
 	$("#undoButton").css("visibility", "hidden");
@@ -1131,9 +1004,8 @@ function undoCardPlacement(){
 }
 
 function submitCard(){
-	console.log("submitCard");
 	var filename = lastCard.attr('src');
-	var tr = $("#" + nextSquareForTile).css('transform');
+	var tr = $("#" + nextSquareForTile).children(".bluetile").css('transform');
 	var angle = 0;
 	if(tr != "none")
 	{
@@ -1178,40 +1050,24 @@ function submitCard(){
 		console.log("NO TILES LEFT");
 		//WE NEED TO SET THE LAST PERSON TO GET A CARD HERE TOO -DRAGON TILE or just add it regularly?? - this might cause probs though
 	}
-	movePlayerPiece();
 	$("#submitButton").css("visibility", "hidden");
 	$("#undoButton").css("visibility", "hidden");
 	lastCard = "none";
 }
 
-
-
-//THIS WOULD BE GOOD FOR THE ROTATION TO HAVE AN ARROW ABOVE THEM
-
-function overTile(){
-	console.log("overtile");
-	// var ficha = $(this);
-	// ficha.draggable();
-
-}
-
 function overSquare(){
-	console.log("overSquare");
 	var ficha = $(this);
-	var filename = ficha.css('background-image');
-	filename = filename.replace(/^.*[\\\/]/, '');
-	filename = (filename.split('.'))[0];
+	var filename = ficha.children(".bluetile").attr("src");
 	if(nextSquareForTile == ficha.attr("id") 
-		&& filename != "purpleSquare"){
-
+		&& filename != undefined){
+		filename = filename.replace(/^.*[\\\/]/, '');
+		filename = (filename.split('.'))[0];
 		var htmlImgLine = $(document.createElement('img'));
 		htmlImgLine.attr("src", "rotate.png");
 		var zaxisCss = "overlayRotate";
 		htmlImgLine.attr("class", zaxisCss);
 		htmlImgLine.attr("id", "rotate");
 		$("#" + ficha.attr("id")).append(htmlImgLine);
-		// if(colorIn == colorChosen)
-
 	}
 }
 
@@ -1219,114 +1075,7 @@ function outOfSquare(){
 	var ficha = $(this);
 	if($("#rotate").length > 0)
 		$("#rotate").remove();
-
-	
 }
-
-
-
-function ennrrocar(habilitada,fil){
-		//Enrrocar
-	console.log("ennrrocar");
-	var anterior=$("#"+6+fil);
-	if(anterior.attr("value")=="vacia"){
-		habilitada=$("#"+7+fil);
-		var torre = $("#"+8+fil);
-		torre = $("#"+torre.attr("id")+" img");
-		if(habilitada.attr("value")=="vacia"&&torre.hasClass("torre")){
-			habilitada.css("background","pink");
-			if(torre.hasClass("torreB")){
-				habilitada.droppable({drop:dropEnrroqueDer});	
-				habilitada.droppable({accept:".reyB"});
-			}
-			else if(torre.hasClass("torreN")){
-				habilitada.droppable({drop:dropEnrroqueDer});	
-				habilitada.droppable({accept:".reyN"});
-			}
-
-		}
-	}
-
-	anterior=$("#"+4+fil);
-	if(anterior.attr("value")=="vacia"){
-		anterior=$("#"+2+fil);
-		if(anterior.attr("value")=="vacia"){
-			habilitada=$("#"+3+fil);
-			var torre = $("#"+1+fil);
-			torre = $("#"+torre.attr("id")+" img");
-			if(habilitada.attr("value")=="vacia"&&torre.hasClass("torre")){
-				habilitada.css("background","pink");
-				if(torre.hasClass("torreB")){
-					habilitada.droppable({drop:dropEnrroqueIzq});	
-					habilitada.droppable({accept:".reyB"});
-				}
-				else if(torre.hasClass("torreN")){
-					habilitada.droppable({drop:dropEnrroqueIzq});	
-					habilitada.droppable({accept:".reyN"});
-				}
-		}
-		}
-	}
-}
-
-
-
-function dropEnrroqueDer(event,ui){
-	console.log("dropEnrroqueDer");
-	var cuadro = $(this);
-	var ficha = ui.draggable;
-	var cuadroProc = ficha.parent();
-	dropGeneric(cuadro,ficha,cuadroProc);
-	ficha.mousedown(downRey);
-	if(ficha.hasClass("fBlanca")){
-		var torre = $("#"+8+1);
-		torre.attr("value","vacia");
-		torre = $("#"+torre.attr("id")+" img");
-	    var casTorre=$("#"+6+1);
-	    casTorre.html(torre);
-		preguntaFlujo(ficha);
-		casTorre.attr("value","vacia");	
-	}
-	else if (ficha.hasClass("fNegra")){
-		var torre = $("#"+8+8);
-		torre.attr("value","vacia");
-		torre = $("#"+torre.attr("id")+" img");
-	    var casTorre=$("#"+6+8);
-	    casTorre.html(torre);
-		preguntaFlujo(ficha);	
-		casTorre.attr("value","vacia");
-	}
-
-}
-function dropEnrroqueIzq(event,ui){
-	console.log("dropEnrroqueIzq");
-	var cuadro = $(this);
-	var ficha = ui.draggable;
-	var cuadroProc = ficha.parent();
-	dropGeneric(cuadro,ficha,cuadroProc);
-	ficha.mousedown(downRey);
-	if(ficha.hasClass("fBlanca")){
-	var torre = $("#"+1+1);
-	torre.attr("value","vacia");
-	torre = $("#"+torre.attr("id")+" img");
-    var casTorre=$("#"+4+1);
-    casTorre.html(torre);
-	preguntaFlujo(ficha);
-	}
-	else if (ficha.hasClass("fNegra")){
-		var torre = $("#"+1+8);
-		torre.attr("value","vacia");
-		torre = $("#"+torre.attr("id")+" img");
-	    var casTorre=$("#"+4+8);
-	    casTorre.html(torre);
-		preguntaFlujo(ficha);
-	}
-
-}
-
-
-
-
 
 
 
