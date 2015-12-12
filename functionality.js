@@ -15,17 +15,19 @@ var playerName = 'none';
 var colorChosen = 'none';
 var lastCard = "none";
 var nextSquareForTile = 0;
+var rotationCount = 0;
 var thisPlayersTurn = 'none'; //this gets set in playerTurns with their player id
 var startSpot = -1;
+var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel';
-var userChannel = 'user_channel';
-var cardsChannel = 'send_cards';
-var colorChannel = 'colorChannel';
-var blockChannel = 'block_channel';
-var userInformationChannel = "user_info";
+var gameChannel = 'game_channel0';
+var userChannel = 'user_channel0';
+var cardsChannel = 'send_cards0';
+var colorChannel = 'colorChannel0';
+var blockChannel = 'block_channel0';
+var userInformationChannel = "user_info0";
 
 var turnoBlanca=true;
 
@@ -35,8 +37,7 @@ var myUUID =  PUBNUB.db.get('session') || (function(){
     PUBNUB.db.set('session', uuid); 
     return uuid; 
 })();
-var tileSpotNumber = -1;
-var angle = 0;
+
 
 var pubnub = PUBNUB({
 subscribe_key: 'sub-c-b1b8b6c8-8b1c-11e5-84ee-0619f8945a4f', // always required
@@ -74,7 +75,8 @@ function main(){
 			//this is for the player spot movement
 			else if(message.colorPassed != undefined && message.fileN != undefined 
 				&& message.tileN != undefined && message.beginning != undefined){
-				if(message.tileN == -1 || message.fileN == -1){
+				
+				if(message.tileN == -1 || message.fileN == -1){ //if there was a death
 					if(message.colorPassed != colorChosen){
 						$("#" + message.colorPassed).remove();
 						console.log(colorChosen + " has died.");
@@ -84,7 +86,6 @@ function main(){
 					for(var i = 0; i < colLen; i += 3){
 						if(i > colLen) //because these loops suck
 							break;
-						var tempp = colors[i];
 						if(colors[i] == message.colorPassed){ //you found the dead one
 							var infiniteLoopProof = 0;
 							var k = i + 5; //start at next color id
@@ -135,8 +136,11 @@ function main(){
 		callback: function(message, envelope, channel){
 			//just add another tile
 			if(message.replacement != undefined 
-			  && tiles.length >= message.replacement)
+			  && tiles.length >= message.replacement){
+				console.log(tiles);
 				tiles.splice(0, message.replacement);
+				console.log(tiles);
+			}
 			else if(message.thedeck != undefined) 
 				allTileInfo = message.thedeck;
 			else
@@ -605,7 +609,6 @@ function movePlayerPiece(){
 				var name = allTileInfo[i][0];
 				if(allTileInfo[i][0] == backgpicture){
 					//if you are not on the current card then jump
-					//if there is a card in your next spot and you are not on it
 					if(nextSquareForTile != playerCurrentLocation)
 						jumpCard(i);
 					//then follow the path
@@ -627,7 +630,10 @@ function movePlayerPiece(){
 				whereSrc = -1;
 				whereLoc = "dead";
 			}
-			publishPlayerMovement(colorChosen , whereSrc, whereLoc, false);
+			if(thisPlayersTurn == myUUID)
+				publishPlayerMovement(colorChosen , whereSrc, whereLoc, false, true);
+			else
+				publishPlayerMovement(colorChosen, whereSrc, whereLoc, false, false);
 		}
 	}
 
@@ -768,9 +774,9 @@ function rotate(){
 	var number = $(this).attr("id");
 	var filename = $("#" + number).children(".bluetile").attr("src");
 	if(filename != undefined){
-		angle += 90;
+		++rotationCount;
 		var string = '#' + number;
-		$(string).children(".bluetile").css('transform','rotate(' + angle + 'deg)');
+		$(string).children(".bluetile").css('transform','rotate(' + rotationCount * 90 + 'deg)');
 	}
 }
 
@@ -890,15 +896,25 @@ function placePersonMarker(colorIn, filename, tileNum){
 	$("#" + tileNum).append(htmlImgLine);
 }
 
-function publishPlayerMovement(col , file, tile, beginningIN){
+function publishPlayerMovement(col , file, tile, beginningIN, turnsRotate){
 	var tempVar = nextSquareForTile;
 	console.log("publish player start movement " + col + " " + file + " " + tile);
-	pubnub.publish({
-	    channel: gameChannel,        
-	    message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
-	    callback : function(m){console.log("publishing in subcard: " + m)},
-	    error: function(e){console.log(e)}
-	});
+	if(turnsRotate){
+		pubnub.publish({
+		    channel: gameChannel,        
+		    message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
+		    callback : function(m){console.log("publishing in subcard: " + m)},
+		    error: function(e){console.log(e)}
+		});
+	}
+	else { //prevents it from switching turns
+		pubnub.publish({
+		    channel: gameChannel,        
+		    message: {colorPassed: col, fileN: file, tileN: tile, beginning: true},
+		    callback : function(m){console.log("publishing in subcard: " + m)},
+		    error: function(e){console.log(e)}
+		});
+	}
 	if(beginningIN){
 		console.log("publishing the spot")
 		//publishing start spots because some browser are slow at loading
@@ -922,7 +938,7 @@ function piecePlacementFn(square){
 					&& square.children().length < 4)){
 				var currentNumber = personMover.attr("src")[personMover.attr("src").indexOf(".") - 1];
 				var filename = getPersonStartFileName(square.attr("id"), currentNumber);
-				publishPlayerMovement(colorChosen, filename, square.attr("id"), true);
+				publishPlayerMovement(colorChosen, filename, square.attr("id"), true, true);
 			}
 			else
 				alert("Someone is on the other spot....");
@@ -938,7 +954,7 @@ function piecePlacementFn(square){
 								&& square.children().length < 4))){
 		//var personMover = $(document.createElement('img'));
 		var filename = getPersonStartFileName(square.attr("id"), -1);
-		publishPlayerMovement(colorChosen, filename, square.attr("id"), true);
+		publishPlayerMovement(colorChosen, filename, square.attr("id"), true, true);
 	}
 }
 
@@ -951,17 +967,17 @@ function addCard(spot, cardin, rotation, local){
 		var zaxisCss = "bluetile";
 		htmlImgLine.attr("class", zaxisCss);
 		if(rotation != 0){
-			htmlImgLine.css('transform', 'rotate(' + rotation + 'deg)');
+			htmlImgLine.css('transform', 'rotate(' + rotation * 90 + 'deg)');
 		}
 		$("#" + spot).append(htmlImgLine);
 	}
-	if(!local){
-		if(rotation != 0){
-			var numTimes = Math.abs(rotation) / 90;
-			for(var i = 0; i < numTimes; i++){
-				rotateTilePos(cardin);
-			}
+	if(local == false){
+		while(rotation >= 4)
+			rotation -= 4;
+		for(var i = 0; i < rotation; i++){
+			rotateTilePos(cardin);
 		}
+
 	}	
 }
 
@@ -977,12 +993,9 @@ function downTile(){
 			else
 				alert("you did not select a start spot"); //MAYBE WE COULD HAVE AUTOMATIC SELECTION THEN -- SO IF YOU HAVE TIME WRITE A FN FOR THIS
 		}
-		// var filename = $("#" + nextSquareForTile).children(".bluetile");
-		// filename = filename.replace(/^.*[\\\/]/, '');
-		// filename = (filename.split('.'))[0];
 		//check that there is not already a card there
 		var ficha = $(this); //this is the piece in player's hand that they selected
-		var childTile = $("#" + nextSquareForTile).children(".tile");
+		var childTile = $("#" + nextSquareForTile).children(".bluetile");
 		if(childTile.length <= 0){
 			//make sure they arent trying to place a holder square
 			var filename = ficha.attr('src');
@@ -994,6 +1007,7 @@ function downTile(){
 				$("#undoButton").css("visibility", "visible");
 				ficha.css("visibility","hidden");
 				lastCard = ficha;
+				rotatationCount = 0;
 			}
 		}
 		else
@@ -1007,40 +1021,20 @@ function downTile(){
 function undoCardPlacement(){
 	var squareName = "piece" + nextSquareForTile;
 	$("#" + nextSquareForTile).css('transform', 'rotate(' + 0 + 'deg)');
-	$("#" + nextSquareForTile).children().css('transform','rotate(' + 0 + 'deg)');
-
 	$("#" + nextSquareForTile).children(".bluetile").remove();
 	lastCard.css("visibility","visible");
 	$("#submitButton").css("visibility", "hidden");
 	$("#undoButton").css("visibility", "hidden");
 	lastCard = "none";
+	rotationCount = 0;
 }
 
 function submitCard(){
 	var filename = lastCard.attr('src');
-	var tr = $("#" + nextSquareForTile).children(".bluetile").css('transform');
-	var angle = 0;
-	if(tr != "none")
-	{
-		var values = tr.split('(')[1];
-	    values = values.split(')')[0];
-	    values = values.split(',');
-		var a = values[0];
-		var b = values[1];
-		var c = values[2];
-		var d = values[3];
-
-		var scale = Math.sqrt(a*a + b*b);
-
-		// arc sin, convert from radians to degrees, round
-		// DO NOT USE: see update below
-		var sin = b/scale;
-		angle = Math.round(Math.asin(sin) * (180/Math.PI));
-	}
 	//publish the change so it is updated on all player's screens
 	pubnub.publish({
 	    channel: gameChannel,        
-	    message: {spot: nextSquareForTile, card: filename, rotation: angle},
+	    message: {spot: nextSquareForTile, card: filename, rotation: rotationCount},
 	    callback : function(m){console.log("publishing in submit card: " + m)},
 	    error: function(e){console.log(e)}
 	});
@@ -1066,6 +1060,7 @@ function submitCard(){
 	$("#submitButton").css("visibility", "hidden");
 	$("#undoButton").css("visibility", "hidden");
 	lastCard = "none";
+	rotationCount = 0;
 }
 
 function overSquare(){

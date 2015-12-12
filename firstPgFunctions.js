@@ -1,8 +1,8 @@
-var userChannel = 'user_channel'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement';
-var userInformationChannel = "user_info";
-var colorChannel = 'colorChannel';
-var blockChannel = 'block_channel';
+var userChannel = 'user_channel0'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement0';
+var userInformationChannel = "user_info0";
+var colorChannel = 'colorChannel0';
+var blockChannel = 'block_channel0';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
@@ -302,6 +302,7 @@ $(document).ready(function() {
 				    error: function(e){console.log(e)}
 				});
 				location.href = "gamePg.html";
+
 			}
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
                 var lenOfCol = colors.length;
