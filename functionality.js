@@ -22,12 +22,12 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel0';
-var userChannel = 'user_channel0';
-var cardsChannel = 'send_cards0';
-var colorChannel = 'colorChannel0';
-var blockChannel = 'block_channel0';
-var userInformationChannel = "user_info0";
+var gameChannel = 'game_channel01';
+var userChannel = 'user_channel01';
+var cardsChannel = 'send_cards01';
+var colorChannel = 'colorChannel01';
+var blockChannel = 'block_channel01';
+var userInformationChannel = "user_info01";
 
 var turnoBlanca=true;
 
@@ -137,14 +137,10 @@ function main(){
 			//just add another tile
 			if(message.replacement != undefined 
 			  && tiles.length >= message.replacement){
-				console.log(tiles);
+				//console.log(tiles);
 				tiles.splice(0, message.replacement);
-				console.log(tiles);
+				//console.log(tiles);
 			}
-			else if(message.thedeck != undefined) 
-				allTileInfo = message.thedeck;
-			else
-				console.log("prob with cards");
 		}
 	});
 
@@ -192,12 +188,14 @@ function main(){
         var newArr = m[0];
         var found = false;
         var arrayLength = newArr.length;
+        var colorhere = 'none';
         for (var i = 0; i < arrayLength; i++) {
             if(newArr[i].uuidPass != null && newArr[i].uuidPass == myUUID
                 && newArr[i].pname != 'none' && newArr[i].colorPass != 'none'){
                 found = true;
                 playerName = newArr[i].pname; 
                 colorChosen = newArr[i].colorPass; 
+                colorhere = myUUID;
                 //put the player's color at the top
                 console.log("the player selected: " + colorChosen);
                 if($("#lgPlayerPiece").length > 0)
@@ -207,6 +205,9 @@ function main(){
         if(!found){
             alert("You did not select a color and name on the previous page.")
         }
+        // else{
+        // 		shuffle(allTileInfo, colorhere);
+        // }
         
      },
      count: 100, // 100 is the default
@@ -260,32 +261,22 @@ function main(){
 		}
 	});
 
-	//restore any previous players place settings
-	pubnub.history({
-    	 channel: blockChannel,
+    pubnub.history({
+    	channel: cardsChannel,
      	callback: function(m){
-     	console.log("block history");
-     	console.log(JSON.stringify(m));
-     	console.log("done with block history");
      	var newArr = m[0];
-     	var arrayLength = newArr.length;
-     	var startFound = false;
-		for (var i = arrayLength - 1; i >= 0 && !startFound; i--) {
-         	if(newArr[i].gameStatus != null ){
-         		startFound = true;
-			}
-			else if(newArr[i].colorPassed != undefined && 
-				newArr[i].fileN != undefined && newArr[i].tileN != undefined 
-				&& newArr[i].beginning != undefined){
-				//you just want the newest ones -not ones that they updated
-				var isItInGame = $("#" + newArr[i].colorPassed);
-				if(isItInGame.length <= 0)
-					placePersonMarker(newArr[i].colorPassed, newArr[i].fileN, newArr[i].tileN);
-			}
-
-		}
+     	var lengthofarr = newArr.length;
+     	for(var i = lengthofarr - 1; i > 0; i--){
+     		if(newArr[i].thedeck != undefined){
+     			tiles = newArr[i].thedeck;
+     			console.log("this is the deck that will be used by this player");
+     			console.log(tiles);
+     			break;
+     		}
+     	}
+     	
 	 },
-     count: 50, // 100 is the default
+     count: 100, // 100 is the default
      reverse: false, // false is the default
     });
 
@@ -306,8 +297,22 @@ function main(){
 	});
 	/////////////////////////////////////
 
-	timerFunction();
-
+	if ($("#alert").length) {
+	    var title;
+	    if ($("#alert span").length) {
+	        title = $("#alert span").text();
+	    }
+	    $("#alert div").dialog({
+	        title: title,
+	        modal: true,
+	        open: function() { var foo = $(this);
+	            setTimeout(function() {
+	               foo.dialog('close');
+	               timerFunction();
+	            }, 4000);
+	        }
+	    });
+	}
 
 } //end of main
 
@@ -342,6 +347,7 @@ function playerTurns(){
 	controlarFlujo();
 	console.log(colors);
 	console.log("up next: " + thisPlayersTurn);
+
 }
 
 
@@ -453,32 +459,6 @@ function tileIsEdgePiece(num){
 		return "left";
 	else
 		return "false";
-}
-
-function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, temporaryValue2, randomIndex ;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    temporaryValue2 = tiles[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    tiles[currentIndex] = tiles[randomIndex];
-    array[randomIndex] = temporaryValue;
-    tiles[randomIndex] = temporaryValue2;
-  }
-  	pubnub.publish({
-		channel: cardsChannel,        
-		message: {thedeck: array},
-		callback : function(m){},
-		error: function(e){console.log(e)}
-	});
 }
 
 //go to ajacent card
@@ -640,8 +620,12 @@ function movePlayerPiece(){
 }
 
 function dealCards(){
-	shuffle(allTileInfo);
-	displayHand(tiles[0], tiles[1], tiles[2]);
+	$("#left").attr("src", tiles[0]);
+	$("#middle").attr("src", tiles[1]);
+	$("#right").attr("src", tiles[2]);
+	$("#left").css("visibility", "hidden");
+	$("#middle").css("visibility", "hidden");
+	$("#right").css("visibility", "hidden");
 	pubnub.publish({
 	    channel: cardsChannel,        
 	    message: {replacement: 3},
@@ -650,10 +634,11 @@ function dealCards(){
 	});
 }
 
-function displayHand(left, middle, right){
-	document.getElementById('left').src = left;
-	document.getElementById('middle').src = middle;
-	document.getElementById('right').src = right;
+function displayHand(){
+
+	$("#left").css("visibility", "visible");
+	$("#middle").css("visibility", "visible");
+	$("#right").css("visibility", "visible");
 }
 
 
@@ -689,9 +674,9 @@ function rotateTilePos(filename){
 
 function readyToPlayGame(){
     piecePlacement = false;
-     $("#lgPlayerPiece").remove();
     playerTurns();
-    dealCards(); 
+    $("#lgPlayerPiece").remove();
+    displayHand(); 
 }
 
 function timerFunction(){
@@ -755,6 +740,8 @@ function establecerEventos(){
 function selectSquare(){
 	var square = $(this);
 	if(piecePlacement == true){
+		if($("#left").attr("src") == undefined)
+			dealCards();
 		piecePlacementFn(square);
 		nextSquareForTile = square.attr("id");
 		console.log("next square for tile = " + nextSquareForTile);
@@ -915,16 +902,16 @@ function publishPlayerMovement(col , file, tile, beginningIN, turnsRotate){
 		    error: function(e){console.log(e)}
 		});
 	}
-	if(beginningIN){
-		console.log("publishing the spot")
-		//publishing start spots because some browser are slow at loading
-        pubnub.publish({
-            channel: blockChannel,        
-            message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
-            callback : function(m){},
-            error: function(e){console.log(e)}
-        });
-	}
+	// if(beginningIN){
+	// 	console.log("publishing the spot")
+	// 	//publishing start spots because some browser are slow at loading
+ //        pubnub.publish({
+ //            channel: blockChannel,        
+ //            message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
+ //            callback : function(m){},
+ //            error: function(e){console.log(e)}
+ //        });
+	// }
 }
 
 function piecePlacementFn(square){	

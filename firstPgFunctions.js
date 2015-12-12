@@ -1,8 +1,18 @@
-var userChannel = 'user_channel0'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement0';
-var userInformationChannel = "user_info0";
-var colorChannel = 'colorChannel0';
-var blockChannel = 'block_channel0';
+var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/piece4.png",
+             "tiles/piece5.png", "tiles/piece6.png", "tiles/piece7.png", "tiles/piece8.png",
+             "tiles/piece9.png", "tiles/piece10.png", "tiles/piece11.png", "tiles/piece12.png",
+             "tiles/piece13.png", "tiles/piece14.png", "tiles/piece15.png", "tiles/piece16.png",
+             "tiles/piece17.png", "tiles/piece18.png", "tiles/piece19.png", "tiles/piece20.png",
+             "tiles/piece21.png", "tiles/piece22.png", "tiles/piece23.png", "tiles/piece23.png",
+             "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
+             "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
+             "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
+var userChannel = 'user_channel01'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement01';
+var userInformationChannel = "user_info01";
+var cardsChannel = 'send_cards01';
+var colorChannel = 'colorChannel01';
+var blockChannel = 'block_channel01';
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
@@ -21,6 +31,33 @@ var pubnub = PUBNUB({
 	uuid: myUUID,
 	heartbeat: 30 //this is wasteful but it is important to know timeouts at this point
 });
+
+function shuffle() {
+  var currentIndex = tiles.length, temporaryValue, temporaryValue2, randomIndex ;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    // temporaryValue = array[currentIndex];
+    temporaryValue2 = tiles[currentIndex];
+    // array[currentIndex] = array[randomIndex];
+    tiles[currentIndex] = tiles[randomIndex];
+    // array[randomIndex] = temporaryValue;
+    tiles[randomIndex] = temporaryValue2;
+  }
+  	pubnub.publish({
+		channel: cardsChannel,        
+		message: {thedeck: tiles},
+		callback : function(m){},
+		error: function(e){console.log(e)}
+	});
+	console.log("this is the correct one");
+	console.log(tiles);
+}
 
 function colorIsAvaliable(colorIn){
 	if(colorIn == 'none')
@@ -106,16 +143,8 @@ function selectColor(colorIn){
 	});
 }
 
-function whenTimeExpires(){
-	pubnub.publish({
-					    channel: pieceMovementChannel,        
-					    message: {uuidPass: myUUID, pname: playerName, colorPass: colorChosen, startPos: startSpot},
-					    callback : function(m){},
-					    error: function(e){console.log(e)}
-					});
-}
-
 function letsPlay() {
+	shuffle();
 	pubnub.publish({
 	    channel: blockChannel,        
 	    message: {gameStatus: "started"},

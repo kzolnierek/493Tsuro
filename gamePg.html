@@ -9,12 +9,13 @@
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
       <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
-
+      
       <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
       <script type="text/javascript" src="functionality.js"></script>
       <script type="text/javascript" src="jquery.js"></script>
       <script type="text/javascript" src="jquery-ui-1.9.2.custom.min.js"></script>
       <link rel="stylesheet" type="text/css" href="jquery-ui-1.9.2.custom.min.css">
+      <link rel="stylesheet" type="text/css" href="jquery-ui.css">
 </head>
 
 <body>
@@ -31,7 +32,7 @@
   
     <div id="grid">
 
-      <img id="lgPlayerPiece" draggable="true" ></img><div></div>
+      <img id="lgPlayerPiece" ></img><div></div>
 
       <div class="row">
         <img class="tile " id="left" draggable="false" ></img>
@@ -106,6 +107,11 @@
     <div id="box" class="chatOutput"></div>
   </div>
   
+  <div id="alert">
+    <span>Are you ready?</span>
+    <div>You will have 20 seconds to pick a start spot when this dialogue disappears.</div>
+  </div>
+
   <div id="turnos">
     <p></p>
   </div>
