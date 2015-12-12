@@ -20,12 +20,12 @@ var startSpot = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel3033';
-var userChannel = 'user_channel3033';
-var cardsChannel = 'send_cards3033';
-var colorChannel = 'colorChannel3033';
-var blockChannel = 'block_channel3033';
-var userInformationChannel = "user_info3033";
+var gameChannel = 'game_channel';
+var userChannel = 'user_channel';
+var cardsChannel = 'send_cards';
+var colorChannel = 'colorChannel';
+var blockChannel = 'block_channel';
+var userInformationChannel = "user_info";
 
 var turnoBlanca=true;
 
@@ -378,7 +378,7 @@ function setUpTileArray(){
     var ninetn = ["tiles/piece19.png", 5, 3, 2, 8, 1, 7, 6, 4];
     var twenty = ["tiles/piece20.png", 6, 8, 4, 3, 7, 1, 5, 2];
     var twent1 = ["tiles/piece21.png", 6, 7, 8, 5, 4, 1, 2, 3];
-    var twent2 = ["tiles/piece22.png", 6, 3, 2, 8, 7, 1, 5, 8];
+    var twent2 = ["tiles/piece22.png", 6, 3, 2, 8, 7, 1, 5, 4];
     var twent3 = ["tiles/piece23.png", 6, 4, 8, 2, 7, 1, 5, 3];
     var twent4 = ["tiles/piece24.png", 6, 4, 7, 2, 8, 1, 3, 5];
     var twent5 = ["tiles/piece25.png", 5, 4, 7, 2, 1, 8, 3, 6];
@@ -741,7 +741,20 @@ function establecerEventos(){
 	//ficha1.mousedown(selectSquare);
 	ficha1.mousedown(rotate);
 
+	var ficha3 = $(".blanca");
+	ficha3.mousedown(selectSquare);
+
 }
+
+function selectSquare(){
+	var square = $(this);
+	if(piecePlacement == true){
+		piecePlacementFn(square);
+		nextSquareForTile = square.attr("id");
+		console.log("next square for tile = " + nextSquareForTile);
+	}
+}
+
 
 function edgeOrCorner(num){
 	if (num == 1 ||num == 6 || num == 31 || num == 36)
