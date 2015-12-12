@@ -22,12 +22,12 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel01';
-var userChannel = 'user_channel01';
-var cardsChannel = 'send_cards01';
-var colorChannel = 'colorChannel01';
-var blockChannel = 'block_channel01';
-var userInformationChannel = "user_info01";
+var gameChannel = 'game_channel05';
+var userChannel = 'user_channel05';
+var cardsChannel = 'send_cards05';
+var colorChannel = 'colorChannel05';
+var blockChannel = 'block_channel05';
+var userInformationChannel = "user_info05";
 
 var turnoBlanca=true;
 
@@ -203,7 +203,7 @@ function main(){
             }
         }
         if(!found){
-            alert("You did not select a color and name on the previous page.")
+            L("You did not select a color and name on the previous page.")
         }
         // else{
         // 		shuffle(allTileInfo, colorhere);
@@ -296,23 +296,6 @@ function main(){
 		 })
 	});
 	/////////////////////////////////////
-
-	if ($("#alert").length) {
-	    var title;
-	    if ($("#alert span").length) {
-	        title = $("#alert span").text();
-	    }
-	    $("#alert div").dialog({
-	        title: title,
-	        modal: true,
-	        open: function() { var foo = $(this);
-	            setTimeout(function() {
-	               foo.dialog('close');
-	               timerFunction();
-	            }, 4000);
-	        }
-	    });
-	}
 
 } //end of main
 
@@ -679,11 +662,6 @@ function readyToPlayGame(){
     displayHand(); 
 }
 
-function timerFunction(){
-    setTimeout(readyToPlayGame, 10000); //10 s for testing, but 30 sec for real
-    console.log("timer has started");
-}
-
 function organizarTablero(){
 	//casillas = boxes
 	//var casillas=$(".blanca,.negra").droppable({drop:dropCasillas}); //makes boxes droppable
@@ -708,11 +686,11 @@ function controlarFlujo(){
 			var temp = colors[i];
 			var temp2 = colors[i + 2];
 			if(colors[i + 2] == myUUID && myUUID == thisPlayersTurn){
-				stringofwords = "<span style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 180%;'>You are up now</span>";
+				stringofwords = "You are up now";
 				break;
 			}
 			else if(colors[i + 2] == thisPlayersTurn){
-				stringofwords = colors[i] + "<span style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 180%;'> is up now</span>";
+				stringofwords = colors[i] + " is up now";
 				break;
 			}
 		}
@@ -1072,6 +1050,23 @@ function outOfSquare(){
 		$("#rotate").remove();
 }
 
+var count=20;
+
+var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+
+function timer()
+{
+  count=count-1;
+  if (count <= 0)
+  {
+     clearInterval(counter);
+     $("#timer").css("visibility", "hidden")
+     readyToPlayGame();
+     return;
+  }
+
+  document.getElementById("timer").innerHTML= "Pick a starting spot, game will start in " + count + " secs";
+}
 
 
 
