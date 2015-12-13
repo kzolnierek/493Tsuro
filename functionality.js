@@ -637,7 +637,10 @@ function dealCards(){
 }
 
 function displayHand(){
+	if($("#left").attr("src") == undefined){
+		alert("You did not select a start spot in time. Everyone will need to refresh their pages and start again.")
 
+	}
 	$("#left").css("visibility", "visible");
 	$("#middle").css("visibility", "visible");
 	$("#right").css("visibility", "visible");
