@@ -16,17 +16,20 @@ var lastCard = "none";
 var nextSquareForTile = 0;
 var rotationCount = 0;
 var thisPlayersTurn = 'none'; //this gets set in playerTurns with their player id
+var playerNameArray;
 var startSpot = -1;
 var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel003';
-var userChannel = 'user_channel003';
-var cardsChannel = 'send_cards003';
-var colorChannel = 'colorChannel003';
-var blockChannel = 'block_channel003';
-var userInformationChannel = "user_info003";
+var gameChannel = 'game_channel21';
+var userChannel = 'user_channel21';
+var cardsChannel = 'send_cards21';
+var colorChannel = 'colorChannel21';
+var blockChannel = 'block_channel21';
+var userInformationChannel = "user_info21";
+var nameChannel = 'name_channel21';
+
 
 var turnoBlanca=true;
 
@@ -279,6 +282,26 @@ function main(){
      reverse: false, // false is the default
     });
 
+    //get color array from first pg
+    pubnub.history({
+	    channel: nameChannel,
+	    callback: function(m){
+	    var newArr = m[0];
+	    playerNameArray = m[0];
+	    console.log(m);
+        var arrayLength = newArr.length;
+        for (var i = arrayLength - 1; i >= 0; i--) {
+            if(newArr[i].namePass != undefined && newArr[i].uuidPass == myUUID){
+            	console.log("this player's name is: " + newArr[i].namePass);
+            	playerName = newArr[i].namePass;
+            	break;
+            }
+        }
+		 },
+	     count: 10, // 100 is the default
+	     reverse: false, // false is the default
+	});
+
 	/////////////chat stuff/////////////////////////
 
 	var box = pubnub.$('box'), input = pubnub.$('input'), channel = 'chat';
@@ -329,6 +352,7 @@ function playerTurns(){
 	controlarFlujo();
 	console.log(colors);
 	console.log("up next: " + thisPlayersTurn);
+
 
 }
 
@@ -685,11 +709,19 @@ function controlarFlujo(){
 			var temp = colors[i];
 			var temp2 = colors[i + 2];
 			if(colors[i + 2] == myUUID && myUUID == thisPlayersTurn){
-				stringofwords = "You are up now";
+				stringofwords =  playerName + ", you are up now.";
 				break;
 			}
 			else if(colors[i + 2] == thisPlayersTurn){
-				stringofwords = colors[i] + " is up now";
+				var found = false;
+				for(var j = playerNameArray.length - 1; j >= 0; j--){
+					if(playerNameArray[j].uuidPass == thisPlayersTurn){
+						stringofwords = playerNameArray[j].namePass + " is up now.";
+						found = true;
+					}
+				}
+				if(!found)
+					stringofwords = colors[i] + " is up now.";
 				break;
 			}
 		}

@@ -7,13 +7,13 @@ var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/
              "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
              "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
              "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
-var userChannel = 'user_channel54'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement54';
-var userInformationChannel = "user_info54";
-var cardsChannel = 'send_cards54';
-var colorChannel = 'colorChannel54';
-var blockChannel = 'block_channel54';
-var nameChannel = 'name_channel54'
+var userChannel = 'user_channel21'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement21';
+var userInformationChannel = "user_info21";
+var cardsChannel = 'send_cards21';
+var colorChannel = 'colorChannel21';
+var blockChannel = 'block_channel21';
+var nameChannel = 'name_channel21'
 
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
