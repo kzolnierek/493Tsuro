@@ -207,9 +207,6 @@ function main(){
         if(!found){
             L("You did not select a color and name on the previous page.")
         }
-        // else{
-        // 		shuffle(allTileInfo, colorhere);
-        // }
         
      },
      count: 100, // 100 is the default
@@ -242,7 +239,6 @@ function main(){
 		callback: function(message, envelope, channel){
 			console.log(message);
 			if (message.toRemove != null){
-				//THIS COULD EVENTUALLY ALSO REMOVE THEIR COLOR PIECE AND NOTIFY THE OTHER PLAYERS IF SOMEONE JUST EXITS
                 var lenOfCol = colors.length;
                 for(var i = 2; i < lenOfCol; i += 3){
                     if(colors[i] == message.toRemove){
@@ -314,7 +310,7 @@ function main(){
 	});
 	pubnub.bind( 'keyup', input, function(e) {
 		(e.keyCode || e.charCode) === 13 && pubnub.publish({
-		 	channel : channel, message : input.value, x : (input.value='')
+		 	channel : channel, message : playerName + ": " + input.value, x : (input.value='')
 		 })
 	});
 	/////////////////////////////////////
@@ -647,7 +643,17 @@ function displayHand(){
 	$("#right").css("visibility", "visible");
 }
 
-
+function checkCards(){
+	if(	$("#left").attr("src") == "holder.png" 
+		&& $("#middle").attr("src") == "holder.png"
+		&& $("#right").attr("src") == "holder.png"){
+		if(tiles.length <= 0)
+			alert("Please tell the creators of this game that there is an error with the 'dragon tile'.")
+		else{
+			addOneCard();
+		}
+	}
+}
 
 function rotateTilePos(filename){
 	var length = allTileInfo.length
@@ -710,6 +716,7 @@ function controlarFlujo(){
 			var temp2 = colors[i + 2];
 			if(colors[i + 2] == myUUID && myUUID == thisPlayersTurn){
 				stringofwords =  playerName + ", you are up now.";
+				checkCards();
 				break;
 			}
 			else if(colors[i + 2] == thisPlayersTurn){
@@ -911,16 +918,6 @@ function publishPlayerMovement(col , file, tile, beginningIN, turnsRotate){
 		    error: function(e){console.log(e)}
 		});
 	}
-	// if(beginningIN){
-	// 	console.log("publishing the spot")
-	// 	//publishing start spots because some browser are slow at loading
- //        pubnub.publish({
- //            channel: blockChannel,        
- //            message: {colorPassed: col, fileN: file, tileN: tile, beginning: beginningIN},
- //            callback : function(m){},
- //            error: function(e){console.log(e)}
- //        });
-	// }
 }
 
 function piecePlacementFn(square){	
@@ -1025,16 +1022,8 @@ function undoCardPlacement(){
 	rotationCount = 0;
 }
 
-function submitCard(){
-	var filename = lastCard.attr('src');
-	//publish the change so it is updated on all player's screens
-	pubnub.publish({
-	    channel: gameChannel,        
-	    message: {spot: nextSquareForTile, card: filename, rotation: rotationCount},
-	    callback : function(m){console.log("publishing in submit card: " + m)},
-	    error: function(e){console.log(e)}
-	});
-	//add another card to user's hand to replace empty if possible
+function addOneCard(){
+//add another card to user's hand to replace empty if possible
 	if(tiles.length > 0){
 		//add the next card in array to your hand
 		lastCard.attr("src", tiles[0]);
@@ -1051,8 +1040,19 @@ function submitCard(){
 		lastCard.attr("src", "holder.png");
 		lastCard.css("visibility", "visible");
 		console.log("NO TILES LEFT");
-		//WE NEED TO SET THE LAST PERSON TO GET A CARD HERE TOO -DRAGON TILE or just add it regularly?? - this might cause probs though
 	}
+}
+
+function submitCard(){
+	var filename = lastCard.attr('src');
+	//publish the change so it is updated on all player's screens
+	pubnub.publish({
+	    channel: gameChannel,        
+	    message: {spot: nextSquareForTile, card: filename, rotation: rotationCount},
+	    callback : function(m){console.log("publishing in submit card: " + m)},
+	    error: function(e){console.log(e)}
+	});
+	addOneCard();
 	$("#submitButton").css("visibility", "hidden");
 	$("#undoButton").css("visibility", "hidden");
 	lastCard = "none";
