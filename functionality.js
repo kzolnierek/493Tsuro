@@ -22,12 +22,13 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel05';
-var userChannel = 'user_channel05';
-var cardsChannel = 'send_cards05';
-var colorChannel = 'colorChannel05';
-var blockChannel = 'block_channel05';
-var userInformationChannel = "user_info05";
+var gameChannel = 'game_channel54';
+var userChannel = 'user_channel54';
+var cardsChannel = 'send_cards54';
+var colorChannel = 'colorChannel54';
+var blockChannel = 'block_channel54';
+var userInformationChannel = "user_info54";
+var nameChannel = 'name_channel54';
 
 var turnoBlanca=true;
 
@@ -174,7 +175,26 @@ function main(){
 	     	console.log("in the color history channel");
 	     	console.log(colors);
 		 },
-	     count: 1, // 100 is the default
+	     count: 10, // 100 is the default
+	     reverse: false, // false is the default
+	});
+
+    //get color array from first pg
+    pubnub.history({
+	    channel: nameChannel,
+	    callback: function(m){
+	    var newArr = m[0];
+	    console.log(m);
+        var arrayLength = newArr.length;
+        for (var i = arrayLength - 1; i > 0; i--) {
+            if(newArr[i].namePass != undefined && newArr[i].uuidPass == myUUID){
+            	console.log("this player's name is: " + newArr[i].namePass);
+            	playerName = newArr[i].namePass;
+            	break;
+            }
+        }
+		 },
+	     count: 10, // 100 is the default
 	     reverse: false, // false is the default
 	});
 
@@ -203,7 +223,7 @@ function main(){
             }
         }
         if(!found){
-            L("You did not select a color and name on the previous page.")
+            ("You did not select a color and name on the previous page.")
         }
         // else{
         // 		shuffle(allTileInfo, colorhere);

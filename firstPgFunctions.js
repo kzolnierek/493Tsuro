@@ -7,12 +7,14 @@ var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/
              "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
              "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
              "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
-var userChannel = 'user_channel01'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
-var pieceMovementChannel = 'piece_movement01';
-var userInformationChannel = "user_info01";
-var cardsChannel = 'send_cards01';
-var colorChannel = 'colorChannel01';
-var blockChannel = 'block_channel01';
+var userChannel = 'user_channel54'; //THESE NEED TO MATCH SECOND PG CHANNEL NAMES
+var pieceMovementChannel = 'piece_movement54';
+var userInformationChannel = "user_info54";
+var cardsChannel = 'send_cards54';
+var colorChannel = 'colorChannel54';
+var blockChannel = 'block_channel54';
+var nameChannel = 'name_channel54'
+
 //color name, is taken, the uuid who has the color
 var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerson", true, 'none', 
 			"redPerson", true, 'none', "yellowPerson", true, 'none', "greenPerson", true, 'none', 
@@ -42,11 +44,8 @@ function shuffle() {
     currentIndex -= 1;
 
     // And swap it with the current element.
-    // temporaryValue = array[currentIndex];
     temporaryValue2 = tiles[currentIndex];
-    // array[currentIndex] = array[randomIndex];
     tiles[currentIndex] = tiles[randomIndex];
-    // array[randomIndex] = temporaryValue;
     tiles[randomIndex] = temporaryValue2;
   }
   	pubnub.publish({
@@ -55,8 +54,6 @@ function shuffle() {
 		callback : function(m){},
 		error: function(e){console.log(e)}
 	});
-	console.log("this is the correct one");
-	console.log(tiles);
 }
 
 function colorIsAvaliable(colorIn){
@@ -65,10 +62,7 @@ function colorIsAvaliable(colorIn){
 	var arrLen = colors.length;
 	for(var i = 0; i + 3 <= arrLen; i += 3){
 		if(colors[i] == colorIn){
-			console.log("here with: " + colors[i]);
 			if(colors[i + 2] == myUUID){
-				console.log(colors [i+2]);
-				console.log(myUUID);
 				return true;
 			}
 			else
@@ -103,6 +97,7 @@ function colorTileAppearance(){
  			document.getElementById("namesubmit").value = 'Change Selection';
  	}
 }
+
 function refreshColorsDisplayed(){
 	pubnub.history({
 	     channel: colorChannel,
@@ -111,7 +106,6 @@ function refreshColorsDisplayed(){
 	     		colors = m[0][0].colorArray;
 	     	else
 	     		console.log("its just using the hardcoded array");
-	     	console.log(colors);
 	     	colorTileAppearance();
 		 },
 	     count: 1, // 100 is the default
@@ -163,7 +157,6 @@ function letsPlay() {
 function resetColorSelector(){
 	colorChosen = 'none';
 	playerName = 'none';
-	//restore old html
 }
 
 function checkForColorRepeats(){
@@ -172,7 +165,6 @@ function checkForColorRepeats(){
 	     callback: function(m){
 	     	console.log("in check for color repeats");
 	     	//console.log(JSON.stringify(m));
-	     	console.log(colors);
 	     	if(m[0][0] != null){
 	     		colors = m[0][0].colorArray;
 	     	}
@@ -210,6 +202,12 @@ function nameSubmit() {
 			if(document.getElementById("playNameTxt") == null)
 				console.log("problem found");
 			playerName = document.getElementById("username").value;
+			pubnub.publish({
+			    channel: nameChannel,        
+			    message: {namePass: playerName, uuidPass: myUUID},
+			    callback : function(m){},
+			    error: function(e){console.log(e)}
+			});
 			console.log("this is the current color chosen: " + colorChosen);
 			selectColor(colorChosen);
 			document.getElementById("namesubmit").value = 'Change Selection';
@@ -286,17 +284,15 @@ function highlightColor(color){
 
 }
 
-
 $(document).ready(function() {
-	console.log("my id: " + myUUID); //uuids are now persistant
+	console.log("my id: " + myUUID); 
 	//used for letsplay, and the list of names (removal/addition etc)
 	pubnub.subscribe({
 		channel: userChannel,
 		message: function(m){console.log("I'm listening:" + m)},
 		error: function (error) {
-		// Handle error here
+			// Handle error here
 			console.log("error occured");
-			console.log(JSON.stringify(error));
 		},
 		presence: function(m){
 			console.log(m);
@@ -321,9 +317,9 @@ $(document).ready(function() {
 				addName(message.entryNumber, message.entryName);
 				if( document.getElementById(message.personColor) != null && message.entryNumber != myUUID)
 					document.getElementById(message.personColor).style.visibility = 'hidden';
+			
 			}
 			else if (message.letsPlay != null){
-				//just for good measure
 				pubnub.publish({
 				    channel: colorChannel,        
 				    message: {colorArray: colors},
@@ -337,8 +333,6 @@ $(document).ready(function() {
                 var lenOfCol = colors.length;
                 for(var i = 2; i < lenOfCol; i += 3){
                     if(colors[i] == message.toRemove){
-                        console.log(colors[i]);
-                        console.log(colors[i-1]);
                         colors[i-1] = true;
                         break;
                     }
@@ -351,11 +345,12 @@ $(document).ready(function() {
                     callback : function(m){},
                     error: function(e){console.log(e)}
                 });
+
 			}
 		}
 	});
 
-	//restores the list of names
+	// //restores the list of names
 	pubnub.history({
      channel: userChannel,
      callback: function(m){
@@ -369,6 +364,7 @@ $(document).ready(function() {
 			}
 			else if(newArr[i].toRemove != null && document.getElementById(newArr[i].toRemove) != null){
 				document.getElementById(newArr[i].toRemove).remove();
+
 			}
 		}
 	 },
@@ -380,11 +376,7 @@ $(document).ready(function() {
 	pubnub.subscribe({
 		channel: colorChannel,
 		message: function(m){console.log("I'm listening:" + m)},
-		error: function (error) {
-		// Handle error here
-			console.log("error occured");
-			console.log(JSON.stringify(error));
-		},
+		error: function (error) {console.log("error occured");},
 		connect: function(){console.log("connected")},
 		disconnect: function(){console.log("disconnected")},
 		callback: function(message, envelope, channel){
@@ -416,6 +408,12 @@ $(document).ready(function() {
 					playerName = newArr[i].pname; 
 					colorChosen = newArr[i].colorPass;
 					console.log(playerName + "    " + colorChosen);
+					pubnub.publish({
+					    channel: nameChannel,        
+					    message: {namePass: playerName, uuidPass: myUUID},
+					    callback : function(m){},
+					    error: function(e){console.log(e)}
+					});
 					if(newArr[i].colorPass != 'none' && newArr[i].pname!= 'none')
 						checkForColorRepeats(); //incase your color is taken
 

@@ -130,24 +130,20 @@
 }
 
 
-
 #turnos{
-
-	position: absolute;
+	float: left;
 	width: 20em;
 	height:6em;
 	background:#fff; 
 	top: 29em;
-	left: 2em;
 
 }
 #chatbar{
 	top: 27em;
 	left:70em;
-
-	position: absolute;
+	float: right;  
 	align: right;
-	background:#D3D3D3;
+	background:#FFFFFF;
 	width: 20em;
 
 

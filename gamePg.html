@@ -23,10 +23,13 @@
       <h1>Tsuro</h1>
       <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#instr">how to play</button>
       <div id="instr" class="collapse" style="text-align:left">
-        <p>1) Click where you want your player to start.</p> 
+        <p> </p>
+        <p>1) Click where you want your player to start. Your starting space must be one of the tick marks along the perimeter of the board.</p> 
         <p>2) Click multiple times for him to switch tick marks or click another square to switch completely.</p> 
         <p>3) When done, wait for time to expire and then let the game begin!.</p> 
-        <p>4) ...more stuff here about game play and such.</p>
+        <p>4) Pick tiles from your hand and play them, remembering the goal to stay on a path and not be pushed off the board. Tiles can be roated once placed on the board by clicking on the tile.</p>
+        <p>5) Once a player is pushed of the edge, both players are notified of the results of the game and the game is ended.</p>
+        <p> Good luck and have fun! </p>
       </div>
     </div>
   
@@ -35,11 +38,15 @@
       <img id="lgPlayerPiece" ></img><div></div>
       <span id="timer" style="color: #f4511e; font-family: Montserrat, sans-serif; font-size: 180%;"></span>
 
+      <div class ="row">
+        <div id="turnos">
+          <p style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 150%;'></p>
+        </div>
+      </div>
       <div class="row">
         <img class="tile " id="left" draggable="false" ></img>
         <img class="tile " id="middle" draggable="false" ></img>
         <img class="tile " id="right" draggable="false" ></img>
-
       </div>
 
        <div class="row">
@@ -107,10 +114,7 @@
       </p>
     <div id="box" class="chatOutput"></div>
   </div>
-  
-  <div id="turnos">
-    <p style='color: #f4511e; font-family: Montserrat, sans-serif; font-size: 150%; padding: 5px;'></p>
-  </div>
+
   <div id="coronadaB">
 
 
