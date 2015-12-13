@@ -1,4 +1,3 @@
-
 var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/piece4.png",
              "tiles/piece5.png", "tiles/piece6.png", "tiles/piece7.png", "tiles/piece8.png",
              "tiles/piece9.png", "tiles/piece10.png", "tiles/piece11.png", "tiles/piece12.png",
@@ -22,13 +21,12 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel54';
-var userChannel = 'user_channel54';
-var cardsChannel = 'send_cards54';
-var colorChannel = 'colorChannel54';
-var blockChannel = 'block_channel54';
-var userInformationChannel = "user_info54";
-var nameChannel = 'name_channel54';
+var gameChannel = 'game_channel003';
+var userChannel = 'user_channel003';
+var cardsChannel = 'send_cards003';
+var colorChannel = 'colorChannel003';
+var blockChannel = 'block_channel003';
+var userInformationChannel = "user_info003";
 
 var turnoBlanca=true;
 
@@ -175,26 +173,7 @@ function main(){
 	     	console.log("in the color history channel");
 	     	console.log(colors);
 		 },
-	     count: 10, // 100 is the default
-	     reverse: false, // false is the default
-	});
-
-    //get color array from first pg
-    pubnub.history({
-	    channel: nameChannel,
-	    callback: function(m){
-	    var newArr = m[0];
-	    console.log(m);
-        var arrayLength = newArr.length;
-        for (var i = arrayLength - 1; i > 0; i--) {
-            if(newArr[i].namePass != undefined && newArr[i].uuidPass == myUUID){
-            	console.log("this player's name is: " + newArr[i].namePass);
-            	playerName = newArr[i].namePass;
-            	break;
-            }
-        }
-		 },
-	     count: 10, // 100 is the default
+	     count: 1, // 100 is the default
 	     reverse: false, // false is the default
 	});
 
@@ -223,7 +202,7 @@ function main(){
             }
         }
         if(!found){
-            ("You did not select a color and name on the previous page.")
+            L("You did not select a color and name on the previous page.")
         }
         // else{
         // 		shuffle(allTileInfo, colorhere);
@@ -1086,9 +1065,5 @@ function timer()
   }
 
   document.getElementById("timer").innerHTML= "Pick a starting spot, game will start in " + count + " secs";
-}
 
-
-
-
-
+ }
