@@ -1122,6 +1122,44 @@ function outOfSquare(){
 		$("#rotate").remove();
 }
 
+function randomPiecePlacementFn(square){	
+	//check to see if the person's piece is already on the board 
+	if($("#" + colorChosen).length > 0){
+		var personMover = $("#" + colorChosen);
+		//if it is the same spot then move to the other tic
+		if(square.has("#" + colorChosen).length > 0){
+			if(square.children().length < 2 || 
+				(edgeOrCorner(square.attr("id")) == "corner" 
+					&& square.children().length < 4)){
+				var currentNumber = personMover.attr("src")[personMover.attr("src").indexOf(".") - 1];
+				var filename = getPersonStartFileName(square.attr("id"), currentNumber);
+				publishPlayerMovement(colorChosen, filename, square.attr("id"), true, true);
+			}
+			else
+				piecePlacement = true;
+				var startingSpots= Array("1","2","3","4","5","6","7","12","13","18","19","24","25","30","31","32","33","34","35","36");
+				var randomspot = startingSpots[Math.floor(Math.random()*startingSpots.length)];
+				square = $("#" + randomspot);
+				if($("#left").attr("src") == undefined){
+					dealCards();
+				}
+				randomPiecePlacementFn(square);
+		}
+		//else delete their old spot bcz they want a new one
+		else{
+			$("#" + colorChosen).remove();
+		}
+	}
+	//if it is now null (they wanted delete not rotate)
+	if($("#" + colorChosen).length <= 0 && (square.children().length  < 2 
+								|| (edgeOrCorner(square.attr("id")) == "corner" 
+								&& square.children().length < 4))){
+		//var personMover = $(document.createElement('img'));
+		var filename = getPersonStartFileName(square.attr("id"), -1);
+		publishPlayerMovement(colorChosen, filename, square.attr("id"), true, true);
+	}
+}
+
 var count=20;
 
 var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
@@ -1131,10 +1169,24 @@ function timer()
   count=count-1;
   if (count <= 0)
   {
-     clearInterval(counter);
-     $("#timer").css("visibility", "hidden")
-     readyToPlayGame();
-     return;
+    clearInterval(counter);
+	$("#timer").css("visibility", "hidden")
+	    if($("#left").attr("src") == undefined){
+		piecePlacement = true;
+		var startingSpots= Array(1,2,3,4,5,6,7,12,13,18,19,24,25,30,31,32,33,34, 35, 36);
+		var randomspot = startingSpots[Math.floor(Math.random()*startingSpots.length)];
+		var square = $("#" + randomspot);
+
+		if(piecePlacement == true){
+		if($("#left").attr("src") == undefined)
+			dealCards();
+		randomPiecePlacementFn(square);
+		nextSquareForTile = square.attr("id");
+		console.log("next square for tile = " + nextSquareForTile);
+		}
+	}
+	readyToPlayGame();
+	return;
   }
 
   document.getElementById("timer").innerHTML= "Pick a starting spot, game will start in " + count + " secs";

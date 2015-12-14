@@ -339,3 +339,4 @@ $(document).ready(function() {
 	 count: 100, // 100 is the default
 	 reverse: false, // false is the default
 	});
+});
