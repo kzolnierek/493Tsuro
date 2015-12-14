@@ -22,13 +22,12 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channel23';
-var userChannel = 'user_channel23';
-var cardsChannel = 'send_cards23';
-var colorChannel = 'colorChannel23';
-var blockChannel = 'block_channel23';
-var userInformationChannel = "user_info23";
-var nameChannel = 'name_channel23';
+var gameChannel = 'game_channelaa';
+var userChannel = 'user_channelaa';
+var cardsChannel = 'send_cardsaa';
+var colorChannel = 'colorChannelaa';
+var blockChannel = 'block_channelaa';
+var nameChannel = 'name_channelaa';
 
 
 var turnoBlanca=true;
@@ -182,30 +181,33 @@ function main(){
 
     //this is so that it remembers the user and their previous color selection
     pubnub.history({
-     channel: userInformationChannel,
+     channel: userChannel,
      callback: function(m){
         //console.log(JSON.stringify(m));
         var url = location.href;
         var filename = url.substring(url.lastIndexOf('/')+1)
         var newArr = m[0];
+        for (var i = 0; i < newArr.length; i++) {
+            if(newArr[i].entryNumber != null && newArr[i].entryName != null
+	     		&& newArr[i].entryName != 'none' && newArr[i].personColor != 'none')
+				updateColorArray(newArr[i].personColor, newArr[i].entryNumber);
+
+            else if(newArr[i].toRemove != null)
+            	updateColorArray("none", newArr[i].toRemove);
+            
+        }
         var found = false;
-        var arrayLength = newArr.length;
-        var colorhere = 'none';
-        for (var i = 0; i < arrayLength; i++) {
-            if(newArr[i].uuidPass != null && newArr[i].uuidPass == myUUID
-                && newArr[i].pname != 'none' && newArr[i].colorPass != 'none'){
-                found = true;
-                playerName = newArr[i].pname; 
-                colorChosen = newArr[i].colorPass; 
-                colorhere = myUUID;
-                //put the player's color at the top
+        for(var i = 2; i < colors.length; i+=3){
+        	if(colors[i] == myUUID){
+        		found = true;
+                colorChosen = colors[i-2]; 
                 console.log("the player selected: " + colorChosen);
                 if($("#lgPlayerPiece").length > 0)
                     $("#lgPlayerPiece").attr("src", 'personMarkers/'+ colorChosen + '.png');
-            }
+             }
         }
         if(!found){
-            L("You did not select a color and name on the previous page.")
+            ("You did not select a color and name on the previous page.")
         }
         
      },
@@ -278,7 +280,7 @@ function main(){
      reverse: false, // false is the default
     });
 
-    //get color array from first pg
+    //get name array from first pg
     pubnub.history({
 	    channel: nameChannel,
 	    callback: function(m){
@@ -316,6 +318,26 @@ function main(){
 	/////////////////////////////////////
 
 } //end of main
+
+
+function updateColorArray(colorIn, uuidIn){
+	if(colorIn == 'none'){
+		for (var i = 2; i < colors.length; i+=3){
+			if(colors[i] == uuidIn){
+				colors[i - 1] = true;
+				colors[i] = 'none';
+			}
+		}
+	}
+	else{
+		for (var i = 0; i < colors.length; i+=3){
+			if(colors[i] == colorIn){
+				colors[i + 1] = false;
+				colors[i+ 2] = uuidIn;
+			}
+		}
+	}
+}
 
 //setup turns and change turn
 function playerTurns(){
