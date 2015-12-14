@@ -225,16 +225,16 @@ function main(){
 			console.log(JSON.stringify(error));
 		},
 		presence: function(m){
-			console.log(m);
-			// updateUsers(m.occupancy);
-			if(m.action == 'leave' || m.action == 'timeout'){		
-				pubnub.publish({
-					    channel: userChannel,        
-					    message: {toRemove: m.uuid},
-					    callback : function(m){},
-					    error: function(e){console.log(e)}
-				});
-			}
+			// console.log(m);
+			// // updateUsers(m.occupancy);
+			// if(m.action == 'leave' || m.action == 'timeout'){		
+			// 	pubnub.publish({
+			// 		    channel: userChannel,        
+			// 		    message: {toRemove: m.uuid},
+			// 		    callback : function(m){},
+			// 		    error: function(e){console.log(e)}
+			// 	});
+			// }
 		},
 		connect: function(){console.log("connected")},
 		disconnect: function(){console.log("disconnected")},
