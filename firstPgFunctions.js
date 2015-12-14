@@ -15,11 +15,11 @@ var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerso
 			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
-var cardsChannel = 'send_cardsada';
-var userChannel = 'user_channelada';
-var nameChannel = 'name_channelada';
-var colorChannel = 'colorChannelada';
-var numberChannel = 'num_channelada';
+var cardsChannel = 'send_cards441';
+var userChannel = 'user_channel441';
+var nameChannel = 'name_channel441';
+var colorChannel = 'colorChannel441';
+var numberChannel = 'num_channel441';
 var randomnum = 0;
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
@@ -226,11 +226,15 @@ function updateColorArray(colorIn, uuidIn){
 }
 
 $(document).ready(function() {
-	var ran = Math.random();
-	console.log("this is the number: " + ran);
+	var randArray = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	for(var i = 0; i < 35; i++){
+		var temp = Math.random();
+		randArray[i] = temp;
+	}
+	console.log("this is the number: " + randArray);
 	pubnub.publish({
 			channel: numberChannel,
-			message: {randomNumber: Math.random()},
+			message: {randomNumber: randArray},
 			callback : function(m){},
 			error: function(e){console.log(e)}
 	});
@@ -279,7 +283,6 @@ $(document).ready(function() {
 				colorTileAppearance();
 			}
 			else if (message.letsPlay != null){
-				//I actually dont know if this ever gets sent because of the page switch
 				pubnub.publish({
 				    channel: colorChannel,        
 				    message: {colorArray: colors},

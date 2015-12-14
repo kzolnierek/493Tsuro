@@ -3,7 +3,7 @@ var tiles = ["tiles/piece1.png", "tiles/piece2.png", "tiles/piece3.png", "tiles/
              "tiles/piece9.png", "tiles/piece10.png", "tiles/piece11.png", "tiles/piece12.png",
              "tiles/piece13.png", "tiles/piece14.png", "tiles/piece15.png", "tiles/piece16.png",
              "tiles/piece17.png", "tiles/piece18.png", "tiles/piece19.png", "tiles/piece20.png",
-             "tiles/piece21.png", "tiles/piece22.png", "tiles/piece23.png", "tiles/piece23.png",
+             "tiles/piece21.png", "tiles/piece22.png", "tiles/piece23.png", "tiles/piece24.png",
              "tiles/piece25.png", "tiles/piece26.png", "tiles/piece27.png", "tiles/piece28.png",
              "tiles/piece29.png", "tiles/piece30.png", "tiles/piece31.png", "tiles/piece32.png",
              "tiles/piece33.png", "tiles/piece34.png", "tiles/piece35.png"];
@@ -22,14 +22,14 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channelada';
-var userChannel = 'user_channelada';
-var cardsChannel = 'send_cardsada';
-var colorChannel = 'colorChannelada';
-var blockChannel = 'block_channelada';
-var nameChannel = 'name_channelada';
+var gameChannel = 'game_channel441';
+var userChannel = 'user_channel441';
+var cardsChannel = 'send_cards441';
+var colorChannel = 'colorChannel441';
+var blockChannel = 'block_channel441';
+var nameChannel = 'name_channel441';
 
-var numberChannel = 'num_channelada';
+var numberChannel = 'num_channel441';
 var turnoBlanca=true;
 
 
@@ -138,9 +138,10 @@ function main(){
 			//just add another tile
 			if(message.replacement != undefined 
 			  && tiles.length >= message.replacement){
-				//console.log(tiles);
+				console.log("in remove cards:")
+				console.log(tiles);
 				tiles.splice(0, message.replacement);
-				//console.log(tiles);
+				console.log(tiles);
 			}
 		}
 	});
@@ -663,34 +664,48 @@ function movePlayerPiece(){
 
 function shuffle(seed) {
   var currentIndex = tiles.length, temporaryValue, temporaryValue2, randomIndex ;
+  var seedNum = 0;
   // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+  while (0 !== currentIndex && seedNum < 35) {
 
     // Pick a remaining element...
-    randomIndex = Math.floor(seed * currentIndex);
-    currentIndex -= 1;
+    randomIndex = Math.floor(seed[seedNum] * currentIndex);
+    --currentIndex;
+    ++seedNum;
 
     // And swap it with the current element.
     temporaryValue2 = tiles[currentIndex];
     tiles[currentIndex] = tiles[randomIndex];
     tiles[randomIndex] = temporaryValue2;
   }
+  console.log(tiles);
 }
 
+
 function dealCards(){
-	shuffle();
-	$("#left").attr("src", tiles[0]);
-	$("#middle").attr("src", tiles[1]);
-	$("#right").attr("src", tiles[2]);
+	//count the num of players
+	var playerCount = 0;
+	var myNum = -1;
+	for (var i = 2; i < colors.length; i+=3){
+		if(colors[i] != 'none'){
+			++playerCount;
+			if(colors[i] == myUUID)
+				myNum = playerCount;
+		}
+
+	}
+	$("#left").attr("src", tiles[myNum * 3 -1]);
+	$("#middle").attr("src", tiles[myNum * 3 - 2]);
+	$("#right").attr("src", tiles[myNum * 3 - 3]);
 	$("#left").css("visibility", "hidden");
 	$("#middle").css("visibility", "hidden");
 	$("#right").css("visibility", "hidden");
-	pubnub.publish({
-	    channel: cardsChannel,        
-	    message: {replacement: 3},
-	    callback : function(m){ console.log("just publishing delt cards")},
-	    error: function(e){console.log("ERROR: " + e)}
-	});
+
+
+	tiles.splice(0, 3 * playerCount);
+
+	console.log("tiles after the dealCards function:");
+	console.log(tiles);
 }
 
 function displayHand(){
