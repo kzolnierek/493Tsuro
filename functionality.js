@@ -22,14 +22,14 @@ var tileSpotNumber = -1;
 var dead = false; //tells if the player is dead
 var piecePlacement = true; //the time when players pick their start spots 
 var allTileInfo;
-var gameChannel = 'game_channelaa';
-var userChannel = 'user_channelaa';
-var cardsChannel = 'send_cardsaa';
-var colorChannel = 'colorChannelaa';
-var blockChannel = 'block_channelaa';
-var nameChannel = 'name_channelaa';
+var gameChannel = 'game_channelada';
+var userChannel = 'user_channelada';
+var cardsChannel = 'send_cardsada';
+var colorChannel = 'colorChannelada';
+var blockChannel = 'block_channelada';
+var nameChannel = 'name_channelada';
 
-
+var numberChannel = 'num_channelada';
 var turnoBlanca=true;
 
 
@@ -165,21 +165,37 @@ function main(){
     });
 
     //get color array from first pg
-    pubnub.history({
-	     channel: colorChannel,
-	     callback: function(m){
-	     	if(m[0][0] != null) //it should only be null the very first time and at beginning of day
-	     		colors = m[0][0].colorArray;
-	     	else
-	     		console.log("its just using the hardcoded array");
-	     	console.log("in the color history channel");
-	     	console.log(colors);
-		 },
-	     count: 1, // 100 is the default
-	     reverse: false, // false is the default
-	});
+ //    pubnub.history({
+	//      channel: colorChannel,
+	//      callback: function(m){
+	//      	if(m[0][0] != null) //it should only be null the very first time and at beginning of day
+	//      		colors = m[0][0].colorArray;
+	//      	else
+	//      		console.log("its just using the hardcoded array");
+	//      	console.log("in the color history channel");
+	//      	console.log(colors);
+	// 	 },
+	//      count: 1, // 100 is the default
+	//      reverse: false, // false is the default
+	// });
 
     //this is so that it remembers the user and their previous color selection
+    pubnub.history({
+	     channel: numberChannel,
+	     callback: function(m){
+			var randomSeed = 0;
+	      	if(m[0][0] != null) {
+	      		randomSeed = m[0][0].randomNumber;
+	      		shuffle(randomSeed);
+	      	}
+	      	else
+	      		console.log("PROBLEM RETRIEVING RANDOM NUM");
+
+	 	 },
+      count: 1, // 100 is the default
+	  reverse: false, // false is the default
+	 });
+
     pubnub.history({
      channel: userChannel,
      callback: function(m){
@@ -204,6 +220,7 @@ function main(){
                 console.log("the player selected: " + colorChosen);
                 if($("#lgPlayerPiece").length > 0)
                     $("#lgPlayerPiece").attr("src", 'personMarkers/'+ colorChosen + '.png');
+                break;
              }
         }
         if(!found){
@@ -261,24 +278,24 @@ function main(){
 		}
 	});
 
-    pubnub.history({
-    	channel: cardsChannel,
-     	callback: function(m){
-     	var newArr = m[0];
-     	var lengthofarr = newArr.length;
-     	for(var i = lengthofarr - 1; i > 0; i--){
-     		if(newArr[i].thedeck != undefined){
-     			tiles = newArr[i].thedeck;
-     			console.log("this is the deck that will be used by this player");
-     			console.log(tiles);
-     			break;
-     		}
-     	}
+  //   pubnub.history({
+  //   	channel: cardsChannel,
+  //    	callback: function(m){
+  //    	var newArr = m[0];
+  //    	var lengthofarr = newArr.length;
+  //    	for(var i = lengthofarr - 1; i > 0; i--){
+  //    		if(newArr[i].thedeck != undefined){
+  //    			tiles = newArr[i].thedeck;
+  //    			console.log("this is the deck that will be used by this player");
+  //    			console.log(tiles);
+  //    			break;
+  //    		}
+  //    	}
      	
-	 },
-     count: 100, // 100 is the default
-     reverse: false, // false is the default
-    });
+	 // },
+  //    count: 100, // 100 is the default
+  //    reverse: false, // false is the default
+  //   });
 
     //get name array from first pg
     pubnub.history({
@@ -520,27 +537,24 @@ function win(){
 	for(var i = 2; i < colLen; i += 3){
 		if(colors[i] != 'none'){
 			if(colors[i] == myUUID){
-				alert("Congrats! You won the game!");
-				break;
+				if (confirm('Congrats! You won the game! Would you like to play another game?')){
+    					location.href = "firstPage.html";
+						break;
+				}
 			}
 			else{
 				for(var j = playerNameArray.length - 1; j >= 0; j--){
 					if(playerNameArray[j].uuidPass == colors[i]){
-						alert(playerNameArray[j].namePass + " won the game!");
-						break;						
-					}
-				}
-			}	
+						if(confirm(playerNameArray[j].namePass + " won the game! Would you like to play another game?")){
+							location.href = "firstPage.html";
+							break;						
+						}//confirm
+					}//if	
+				}//for
+			}//else	
 		}
 	}
-	 pubnub.publish({
-        channel: blockChannel,        
-        message: {gameStatus: "finished"},
-        callback : function(m){},
-        error: function(e){console.log(e)}
-    });
 }
-
 
 //this will return false if not or top, right, left, corner, bottom if it is
 function calculateNewNextSpot(overlaySpot){
@@ -647,7 +661,24 @@ function movePlayerPiece(){
 
 }
 
+function shuffle(seed) {
+  var currentIndex = tiles.length, temporaryValue, temporaryValue2, randomIndex ;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(seed * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue2 = tiles[currentIndex];
+    tiles[currentIndex] = tiles[randomIndex];
+    tiles[randomIndex] = temporaryValue2;
+  }
+}
+
 function dealCards(){
+	shuffle();
 	$("#left").attr("src", tiles[0]);
 	$("#middle").attr("src", tiles[1]);
 	$("#right").attr("src", tiles[2]);

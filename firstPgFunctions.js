@@ -15,44 +15,24 @@ var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerso
 			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
-var cardsChannel = 'send_cardsaa';
-var userChannel = 'user_channelaa';
-var nameChannel = 'name_channelaa';
-var colorChannel = 'colorChannelaa';
-
+var cardsChannel = 'send_cardsada';
+var userChannel = 'user_channelada';
+var nameChannel = 'name_channelada';
+var colorChannel = 'colorChannelada';
+var numberChannel = 'num_channelada';
+var randomnum = 0;
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
     PUBNUB.db.set('session', uuid); 
     return uuid; 
 })();
+
 var pubnub = PUBNUB({
 	subscribe_key: 'sub-c-b1b8b6c8-8b1c-11e5-84ee-0619f8945a4f', // always required
 	publish_key: 'pub-c-178c8c90-9ea7-46e3-8982-32615dadbba0',    // only required if publishing
 	uuid: myUUID,
 	heartbeat: 60 //this is wasteful but it is important to know timeouts at this point
 });
-
-function shuffle() {
-  var currentIndex = tiles.length, temporaryValue, temporaryValue2, randomIndex ;
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue2 = tiles[currentIndex];
-    tiles[currentIndex] = tiles[randomIndex];
-    tiles[randomIndex] = temporaryValue2;
-  }
-  	pubnub.publish({
-		channel: cardsChannel,        
-		message: {thedeck: tiles},
-		callback : function(m){},
-		error: function(e){console.log(e)}
-	});
-}
 
 
 function colorIsAvaliable(colorIn){
@@ -116,7 +96,8 @@ function selectColor(colorIn){
 }
 
 function letsPlay() {
-	shuffle();
+	//randomnum = ;
+	//shuffle();
 	// pubnub.publish({
 	//     channel: blockChannel,        
 	//     message: {gameStatus: "started"},
@@ -245,6 +226,15 @@ function updateColorArray(colorIn, uuidIn){
 }
 
 $(document).ready(function() {
+	var ran = Math.random();
+	console.log("this is the number: " + ran);
+	pubnub.publish({
+			channel: numberChannel,
+			message: {randomNumber: Math.random()},
+			callback : function(m){},
+			error: function(e){console.log(e)}
+	});
+
 	pubnub.subscribe({
 		channel: userChannel,
 		message: function(m){console.log("I'm listening:" + m)},
