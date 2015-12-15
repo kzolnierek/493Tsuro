@@ -15,11 +15,11 @@ var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerso
 			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
-var cardsChannel = 'send_cards441';
-var userChannel = 'user_channel441';
-var nameChannel = 'name_channel441';
-var colorChannel = 'colorChannel441';
-var numberChannel = 'num_channel441';
+var cardsChannel = 'send_cards1';
+var userChannel = 'user_channel1';
+var nameChannel = 'name_channel1';
+var colorChannel = 'colorChannel1';
+var numberChannel = 'num_channel1';
 var randomnum = 0;
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 

@@ -27,13 +27,14 @@ var count=20; //for the timer
 var counter=setInterval(timer, 1000); //1000 will  run it every 1 second - for the timer
 
 //channels used
-var gameChannel = 'game_channel441';
-var userChannel = 'user_channel441';
-var cardsChannel = 'send_cards441';
-var colorChannel = 'colorChannel441';
-var blockChannel = 'block_channel441';
-var nameChannel = 'name_channel441';
-var numberChannel = 'num_channel441';
+var gameChannel = 'game_channel1';
+var userChannel = 'user_channel1';
+var cardsChannel = 'send_cards1';
+var colorChannel = 'colorChannel1';
+var blockChannel = 'block_channel1';
+var nameChannel = 'name_channel1';
+var numberChannel = 'num_channel1';
+
 
 var turnoBlanca=true;
 
@@ -115,6 +116,7 @@ function main(){
 								win();
 						}
 					}
+					controlarFlujo();
 				}
 				else{
 					placePersonMarker(message.colorPassed, message.fileN, message.tileN);
@@ -660,9 +662,7 @@ function controlarFlujo(){
 	else{
 		var len = colors.length;
 		var stringofwords = 'error';
-		for(var i = 0; i  <= len; i += 3){
-			if(i + 2 > colors.length)
-				break;
+		for(var i = 0; i  < len; i += 3){
 			var temp = colors[i];
 			var temp2 = colors[i + 2];
 			if(colors[i + 2] == myUUID && myUUID == thisPlayersTurn){
