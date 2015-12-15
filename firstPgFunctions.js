@@ -34,7 +34,7 @@ var pubnub = PUBNUB({
 	heartbeat: 60 //this is wasteful but it is important to know timeouts at this point
 });
 
-
+//if someone has taken the color already
 function colorIsAvaliable(colorIn){
 	if(colorIn == 'none')
 		return true;
@@ -53,6 +53,7 @@ function colorIsAvaliable(colorIn){
 	console.log("error in isColorAvaliable function!!!!!!!!!!!!!");
 }
 
+//fix the look of the colors on the side
 function colorTileAppearance(){
 	var lengthofarr = colors.length;
 	for(var i = 0; i + 3 <= lengthofarr; i += 3){
@@ -77,6 +78,7 @@ function colorTileAppearance(){
  	}
 }
 
+//pick a color
 function selectColor(colorIn){
 	for(var i = 0; i < colors.length; i += 3){
 		if(colors[i] == colorIn){
@@ -95,15 +97,8 @@ function selectColor(colorIn){
 	}
 }
 
+//ready to continue to the next page- lets others know
 function letsPlay() {
-	//randomnum = ;
-	//shuffle();
-	// pubnub.publish({
-	//     channel: blockChannel,        
-	//     message: {gameStatus: "started"},
-	//     callback : function(m){},
-	//     error: function(e){console.log(e)}
-	// });
     pubnub.publish({
 	    channel: userChannel,        
 	    message: {letsPlay: true},
@@ -112,6 +107,8 @@ function letsPlay() {
 	});
 
 };
+
+//submit the name and color
 function nameSubmit() {
 	//if theyre submitting a new name and color
 	if(document.getElementById("namesubmit").value == 'Submit'){
@@ -175,21 +172,19 @@ function nameSubmit() {
 			    callback : function(m){},
 			    error: function(e){console.log(e)}
 		});
-
 	}
 };
 
-
+//put a name in the list
 function addName(usernumber, usernameIN){
 	var list = document.getElementById('demo');
     var entry = document.createElement('li');
     entry.setAttribute("id", usernumber);
 	entry.appendChild(document.createTextNode(usernameIN));
 	list.appendChild(entry);
-
-
 }
 
+//puts background around selected color
 function highlightColor(color){
 	if(colorChosen == 'none')
 	{
@@ -201,11 +196,10 @@ function highlightColor(color){
 		document.getElementById(colorChosen).style.border = "0px solid white";
 		colorChosen = color;
 		document.getElementById(color).style.border = "5px solid blue";
-
 	}
-
 }
 
+//add or remove info from color array
 function updateColorArray(colorIn, uuidIn){
 	if(colorIn == 'none'){
 		for (var i = 2; i < colors.length; i+=3){
@@ -225,7 +219,9 @@ function updateColorArray(colorIn, uuidIn){
 	}
 }
 
+//runs on page startup
 $(document).ready(function() {
+	//random number stuff for shuffle on next page
 	var randArray = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	for(var i = 0; i < 35; i++){
 		var temp = Math.random();
@@ -239,6 +235,7 @@ $(document).ready(function() {
 			error: function(e){console.log(e)}
 	});
 
+	//handle's the users information
 	pubnub.subscribe({
 		channel: userChannel,
 		message: function(m){console.log("I'm listening:" + m)},
@@ -279,7 +276,6 @@ $(document).ready(function() {
 				&& message.entryName == 'none' && message.personColor == 'none'){
 				//user asked for a refresh
 				updateColorArray('none', message.entryNumber);
-
 				colorTileAppearance();
 			}
 			else if (message.letsPlay != null){
@@ -290,7 +286,6 @@ $(document).ready(function() {
 				    error: function(e){console.log(e)}
 				});
 				location.href = "gamePg.html";
-
 			}
 			else if (message.toRemove != null && document.getElementById(message.toRemove) != null){
                 updateColorArray('none', message.toRemove);
@@ -301,9 +296,7 @@ $(document).ready(function() {
 					colorChosen = 'none';
 					playerName = 'none';
 				}
-
 				colorTileAppearance();
-
 			}
 		}
 	});
