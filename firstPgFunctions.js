@@ -15,11 +15,12 @@ var colors = ["navyPerson", true, 'none', "pinkPerson", true, 'none', "grayPerso
 			"bluePerson", true, 'none', "orangePerson", true, 'none'];
 var playerName = 'none';
 var colorChosen = 'none';
-var cardsChannel = 'send_cards1';
-var userChannel = 'user_channel1';
-var nameChannel = 'name_channel1';
-var colorChannel = 'colorChannel1';
-var numberChannel = 'num_channel1';
+var cardsChannel = 'send_cards';
+var userChannel = 'user_channel';
+var nameChannel = 'name_channel';
+var colorChannel = 'colorChannel';
+var numberChannel = 'num_channel';
+var channelChannel = 'channelChannel';
 var randomnum = 0;
 var myUUID =  PUBNUB.db.get('session') || (function(){ 
     var uuid = PUBNUB.uuid(); 
@@ -221,6 +222,27 @@ function updateColorArray(colorIn, uuidIn){
 
 //runs on page startup
 $(document).ready(function() {
+	//prompt user for the channel that they want to play on
+	var chann = prompt("Please enter the channel you will be playing on.", "Any combo of letters/ numbers goes here");
+	if (chann != null) {
+    	cardsChannel = 'send_cards' + chann;
+		userChannel = 'user_channel' + chann;
+		nameChannel = 'name_channel' + chann;
+		colorChannel = 'colorChannel' + chann;
+		numberChannel = 'num_channel' + chann;
+		pubnub.publish({
+			channel: channelChannel,
+			message: {uuidIn: myUUID, channIN: chann},
+			callback : function(m){},
+			error: function(e){console.log(e)}
+		});
+		startUpFunction();
+	}
+
+});
+
+function startUpFunction(){
+	console.log(cardsChannel + " " + userChannel + " " + numberChannel);
 	//random number stuff for shuffle on next page
 	var randArray = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	for(var i = 0; i < 35; i++){
@@ -312,6 +334,11 @@ $(document).ready(function() {
 	     	if(newArr[i].entryNumber != null && newArr[i].entryName != null
 	     		&& newArr[i].entryName != 'none' && newArr[i].personColor != 'none'){
 				addName(newArr[i].entryNumber, newArr[i].entryName);
+				if(newArr[i].entryNumber == myUUID){
+					colorChosen = newArr[i].personColor;
+					playerName = newArr[i].entryName;
+					console.log("ASDFASDFASDFASDF");
+				}
 				updateColorArray(newArr[i].personColor, newArr[i].entryNumber);
 			}
 			else if(newArr[i].toRemove != null && document.getElementById(newArr[i].toRemove) != null){
@@ -325,4 +352,4 @@ $(document).ready(function() {
 	 count: 100, // 100 is the default
 	 reverse: false, // false is the default
 	});
-});
+}

@@ -27,13 +27,14 @@ var count=20; //for the timer
 var counter=setInterval(timer, 1000); //1000 will  run it every 1 second - for the timer
 
 //channels used
-var gameChannel = 'game_channel1';
-var userChannel = 'user_channel1';
-var cardsChannel = 'send_cards1';
-var colorChannel = 'colorChannel1';
-var blockChannel = 'block_channel1';
-var nameChannel = 'name_channel1';
-var numberChannel = 'num_channel1';
+var gameChannel = 'game_channel';
+var userChannel = 'user_channel';
+var cardsChannel = 'send_cards';
+var colorChannel = 'colorChannel';
+var nameChannel = 'name_channel';
+var numberChannel = 'num_channel';
+var channelChannel = 'channelChannel';
+var channel = 'chatChannel';
 
 
 var turnoBlanca=true;
@@ -52,10 +53,40 @@ uuid: myUUID,
 heartbeat: 30 //kind of wasteful so we can increase it if you want but it is used for presence in the game
 });
 
-$(document).ready(main);
+$(document).ready(function(){ 
+    pubnub.history({
+     channel: channelChannel,
+     callback: function(m){
+        var newArr = m[0];
+        var found = false;
+        for (var i = newArr.length - 1; i >= 0 && !found; i--) {
+            if(newArr[i].uuidIn == myUUID && newArr[i].channIN != null){
+            	gameChannel = 'game_channel' + newArr[i].channIN;
+				userChannel = 'user_channel' + newArr[i].channIN;
+				cardsChannel = 'send_cards' + newArr[i].channIN;
+				colorChannel = 'colorChannel' + newArr[i].channIN;
+				nameChannel = 'name_channel' + newArr[i].channIN;
+				numberChannel = 'num_channel' + newArr[i].channIN;
+				channel = 'chatChannel' + newArr[i].channIN;
+				console.log("in ready function:");
+				console.log(cardsChannel + " " + userChannel + " " + numberChannel);
+				found = true;
+				main();
+            }		
+        }
+        if(!found)
+            ("You did not select a channel on the previous page.")
+        
+     },
+     count: 100, // 100 is the default
+     reverse: false, // false is the default
+    });
+});
+
 
 //functions that run on startup
 function main(){
+	console.log(cardsChannel + " " + userChannel + " " + numberChannel);
     establecerEventos();
     controlarFlujo();
     setUpTileArray();
@@ -236,7 +267,7 @@ function main(){
 
 	/////////////chat stuff/////////////////////////
 
-	var box = pubnub.$('box'), input = pubnub.$('input'), channel = 'chat';
+	var box = pubnub.$('box'), input = pubnub.$('input'); 
 
 	pubnub.subscribe({
 	    channel  : channel,
@@ -244,6 +275,7 @@ function main(){
 			box.innerHTML = ('' + text).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML
 		 }
 	});
+	
 	pubnub.bind( 'keyup', input, function(e) {
 		(e.keyCode || e.charCode) === 13 && pubnub.publish({
 		 	channel : channel, message : playerName + ": " + input.value, x : (input.value='')
@@ -436,7 +468,7 @@ function win(){
 		if(colors[i] != 'none'){
 			if(colors[i] == myUUID){
 				if (confirm('Congrats! You won the game! Would you like to play another game?')){
-    					location.href = "firstPage.html";
+    					location.href = "firstPg.html";
 						break;
 				}
 			}
